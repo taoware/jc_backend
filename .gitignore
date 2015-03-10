@@ -1,0 +1,31 @@
+# Eclipse project files
+.classpath
+.project
+.settings/
+.springBeans
+
+# WebStorm project files
+.idea
+uploaded
+
+# Workspace
+.metadata
+RemoteSystemsTempFiles
+Servers
+
+# AngularJS
+AngularJS/public/build
+AngularJS/public/online
+AngularJS-Client/public/build
+node_modules
+icampus-recruitment/src/main/resources/public
+
+# Others
+target/
+logs/
+*.log
+*.epoch
+*.db
+
+# OS X
+.DS_Store
