@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -29,12 +30,9 @@ public class Unit extends IdEntity {
 	
 	private String uriName;
 	
-//    @ManyToMany(
-//            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-//            mappedBy = "units",
-//            targetEntity = User.class
-//        )
-//	private Collection<User> users = new LinkedHashSet<User>();;
+	private String Category;
+	
+	private Set<User> users = new HashSet<User>();;
 		
 	private boolean enable;
 	
@@ -48,6 +46,7 @@ public class Unit extends IdEntity {
 		this.enable = true;
 	}
 
+//	@JsonIgnore
 	@OneToMany(targetEntity=Unit.class, cascade=CascadeType.ALL, mappedBy="parent")
 	public Set<Unit> getChildren() {
 		return children;
@@ -115,13 +114,27 @@ public class Unit extends IdEntity {
 		}
 	}
 
-//	public Collection<User> getUsers() {
-//		return users;
-//	}
-//
-//	public void setUsers(Collection<User> users) {
-//		this.users = users;
-//	}
+	public String getCategory() {
+		return Category;
+	}
+
+	public void setCategory(String category) {
+		Category = category;
+	}
+
+	@JsonIgnore
+    @ManyToMany(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            mappedBy = "units",
+            targetEntity = User.class
+        )
+	public Set<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<User> users) {
+		this.users = users;
+	}
 
 	@Column(nullable=false)
 	public boolean getEnable() {
