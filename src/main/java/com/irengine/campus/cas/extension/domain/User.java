@@ -27,22 +27,30 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "cas_users")
 public class User extends IdEntity {
+	
+	private String notes;//备注
 
-	private String code;
+	private String code;//登录名
 	
-	private String name;
+	private String name;//真实姓名
 
-	private String email;
+	private String email;//邮箱
 	
-	private String mobile;
+	private String mobile;//手机号
 
-	private String gender;
+	private String gender;//性别
 	
-	private String position;
+	private String location; //下拉地址
 	
-	private String password;
+	private String category;//职务类别
 	
-	private String plainPassword;
+	private String position;//职位
+	
+	private String address;//详细地址
+	
+	private String password;//数据库密码(加密后)
+	
+	private String plainPassword;//密码
 	
 	private boolean enable;
 	
@@ -54,15 +62,55 @@ public class User extends IdEntity {
 	
 	private Set<Unit> units = new HashSet<Unit>();
 	
-//	private Set<Unit> schools = new HashSet<Unit>();
+	//	private Set<Unit> schools = new HashSet<Unit>();
 	
 	private User manager;
-
+	
 	private Set<Device> devices = new HashSet<Device>();
+
+	
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
 
 	public User() {
 		this.enable = true;
 	}
+	
+	
+	public String getNotes() {
+		return notes;
+	}
+
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+
+	public String getLocation() {
+		return location;
+	}
+
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+
+	public String getCategory() {
+		return category;
+	}
+
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
 
 	@Column(unique=true, nullable=false)
 	public String getCode() {
@@ -89,6 +137,7 @@ public class User extends IdEntity {
 		this.email = email;
 	}
 
+	@Column(unique=true,nullable=false)
 	public String getMobile() {
 		return mobile;
 	}
@@ -162,7 +211,7 @@ public class User extends IdEntity {
 	public void setUpdatedTime(Date updatedTime) {
 		this.updatedTime = updatedTime;
 	}
-
+	/*把取出的时间格式化显示?*/
 	@Temporal(TemporalType.TIMESTAMP)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
 	public Date getDeletedTime() {
@@ -172,7 +221,15 @@ public class User extends IdEntity {
 	public void setDeletedTime(Date deletedTime) {
 		this.deletedTime = deletedTime;
 	}
-
+	/*	 fetch = FetchType.EAGER:如果是EAGER，那么表示取出这条数据时，
+	它关联的数据也同时取出放入内存中如果是LAZY，那么取出这条数据时，
+	它关联的数据并不取出来，在同一个session中，什么时候要用，
+	就什么时候取(再次访问数据库)。(延迟加载?)*/
+	/*CascadeType.MERGE级联更新：若items属性修改了那么order对象
+	 * 保存时同时修改items里的对象。对应EntityManager的merge方法 */
+	/*CascadeType.PERSIST级联刷新：获取order对象里也同时也重新获
+	 * 取最新的items时的对象。对应EntityManager的refresh(object)方
+	 * 法有效。即会重新查询数据库里的最新数据  */
     @ManyToMany(
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             targetEntity = Unit.class,

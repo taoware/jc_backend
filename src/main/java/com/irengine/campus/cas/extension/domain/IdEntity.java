@@ -8,7 +8,7 @@ import javax.persistence.MappedSuperclass;
 public abstract class IdEntity {
 
 	private Long id;
-
+	//@GeneratedValue:主键生成策略
 	@Id
 	@GeneratedValue
 	public Long getId() {

@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+//组织节点
 @Entity
 @Table(name = "cas_units")
 public class Unit extends IdEntity {
@@ -32,7 +32,7 @@ public class Unit extends IdEntity {
 	
 	private String Category;
 	
-	private Set<User> users = new HashSet<User>();;
+	private Set<User> users = new HashSet<User>();
 		
 	private boolean enable;
 	

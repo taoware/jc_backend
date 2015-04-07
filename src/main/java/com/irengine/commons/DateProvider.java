@@ -1,7 +1,7 @@
 package com.irengine.commons;
 
 import java.util.Date;
-
+/**得到系统时间*/
 public interface DateProvider {
 
 	Date getDate();

@@ -20,14 +20,23 @@ public class UserService {
 	UserRepository userRepository;
 		
 	public List<User> list() {
-
 		return (List<User>)userRepository.findAll();
 	}
 	
-	public void create(User user) {
+	public String create(User user) {
 		user.setCreatedTime(DateProvider.DEFAULT.getDate());
 		user.setUpdatedTime(DateProvider.DEFAULT.getDate());
-		userRepository.save(user);
+		boolean jMoble=user.getMobile().matches("^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$");
+		boolean j1=user.getPlainPassword().matches("[\\da-zA-Z]{6,16}");
+		boolean j2=user.getPlainPassword().matches("[a-zA-Z]+[\\d]+||[\\d]+[a-zA-Z]+");
+		String mes="";
+		if(j1==true&&j2==true&&jMoble==true){
+			userRepository.save(user);
+			mes="success";
+		}else{
+			mes="error";
+		}
+		return mes;
 	}
 	
 	public List<User> getLastUpdated(Date queryTime) {
@@ -54,8 +63,50 @@ public class UserService {
 	}
 
 	public User findByCode(String code) {
-
 		return userRepository.findByCode(code);
 	}
+	
+	public User findByMobile(String mobile){
+		return userRepository.findByMobile(mobile);
+	}
 
+	public String login( String mobile,String plainPassword){
+		User user=userRepository.findByMobile(mobile);
+		if(user!=null&&User.encode(plainPassword).equals(user.getPassword())){
+			return "success";
+		}else if(user==null){
+			return "notExist";
+		}else if(!User.encode(plainPassword).equals(user.getPassword())){
+			return "Wrong";
+		}else{
+			return "down";
+		}
+	}
+	/**删除user*/
+	public void delete(Long id) {
+		userRepository.delete(id);
+	}
+	
+	/**修改user*/
+	public String update(User user) {
+		user.setUpdatedTime(DateProvider.DEFAULT.getDate());
+		boolean jMoble=user.getMobile().matches("^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$");
+		boolean j1=user.getPlainPassword().matches("[\\da-zA-Z]{6,16}");
+		boolean j2=user.getPlainPassword().matches("[a-zA-Z]+[\\d]+||[\\d]+[a-zA-Z]+");
+		String mes="";
+		if(j1==true&&j2==true&&jMoble==true){
+			userRepository.save(user);
+			mes="success";
+		}else{
+			mes="error";
+		}
+		return mes;
+	}
 }
+
+
+
+
+
+
+
