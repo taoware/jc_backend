@@ -69,5 +69,14 @@ public class StoreService {
 		}
 		return store;
 	}
+	/**根据province查找门店信息*/
+	public List<Store> findByProvince(String province) {
+		List<Store> stores=storeRepository.findByProvince(province);
+		return stores;
+	}
+	public List<Store> findByProvinceAndType(String province, String type) {
+		List<Store> stores=storeRepository.findByProvinceAndType(province,type);
+		return stores;
+	}
 
 }

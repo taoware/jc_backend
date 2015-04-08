@@ -24,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.irengine.campus.cas.extension.domain.Result;
 import com.irengine.campus.cas.extension.domain.UploadedFile;
+import com.irengine.campus.cas.extension.repository.UploadedFileRepository;
 import com.irengine.campus.cas.extension.service.UtilityService;
 
 @Controller
@@ -136,6 +138,12 @@ public class FileUploadController {
     	
     	return new ResponseEntity<>(HttpStatus.OK);
 
+    }
+    @RequestMapping(value="/upload/list",method=RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<?> findAll(){
+    	List<UploadedFile> files=utilityService.findAll();
+    	return new ResponseEntity<>(new Result<UploadedFile>("ok",files),HttpStatus.OK);
     }
 
 }

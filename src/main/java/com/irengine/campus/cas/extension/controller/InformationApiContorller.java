@@ -81,9 +81,10 @@ public class InformationApiContorller {
 //    }
     
 	/**列出所有资讯/查询轮播图/列表图*/
+	/*@RequestParam(required=false)当他为false 时  使用这个注解可以不传这个参数  true时必须传*/
   @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseEntity<?> listByType(@RequestParam("type") String type){
+  public ResponseEntity<?> listByType(@RequestParam(value="type", required=false, defaultValue="") String type ){
 //	  Map<String,Object> map=new HashMap<String, Object>();
   	if(type==null||"".equals(type)){
   	  	List<Information> informations=informationService.list();

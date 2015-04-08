@@ -27,7 +27,6 @@ public class Store extends IdEntity{
 	private Date updateTime;//修改时间
 	private Date deleteTime;//删除时间
 	private String type;//类型:slideshow or listshow
-	private Set<UploadedFile> files=new HashSet<UploadedFile>();//对应门店图片信息
 	
 	public String getProvince() {
 		return province;
@@ -40,13 +39,6 @@ public class Store extends IdEntity{
 	}
 	public void setType(String type) {
 		this.type = type;
-	}
-	@Transient
-	public Set<UploadedFile> getFiles() {
-		return files;
-	}
-	public void setFiles(Set<UploadedFile> files) {
-		this.files = files;
 	}
 	@Temporal(TemporalType.TIMESTAMP)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")

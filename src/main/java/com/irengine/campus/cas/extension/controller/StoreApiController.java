@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.irengine.campus.cas.extension.domain.Result;
 import com.irengine.campus.cas.extension.domain.Store;
+import com.irengine.campus.cas.extension.domain.StoresInProvince;
 import com.irengine.campus.cas.extension.service.StoreService;
 
 @RestController
@@ -48,29 +49,70 @@ public class StoreApiController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
+//	/**列出所有资讯/查询轮播图/列表图*/
+//	@RequestMapping(method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
+//	@ResponseBody
+//	public ResponseEntity<?> findByType(@RequestParam("type") String type){
+//		List<Store> stores=new ArrayList<Store>();
+//		if(type!=null&&!"".equals(type)){
+//			stores=storeService.findByType(type);
+//		}else{
+//			stores=storeService.findAll();
+//		}
+//		return new ResponseEntity<>(new Result<Store>("ok",stores),HttpStatus.OK);
+//	}
+	
 	/**列出所有资讯/查询轮播图/列表图*/
 	@RequestMapping(method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> findByType(@RequestParam("type") String type){
-		List<Store> stores=new ArrayList<Store>();
+	public ResponseEntity<?> findByType(@RequestParam(value="type", required=false, defaultValue="") String type){
+		List<Store> stores=null;
 		if(type!=null&&!"".equals(type)){
 			stores=storeService.findByType(type);
 		}else{
 			stores=storeService.findAll();
 		}
-//		Map<String,Object> map=new HashMap<String, Object>();
-//		map.put("Results", stores);
-//		map.put("msg", "ok");
+		Result<StoresInProvince> result=new Result<StoresInProvince>();
+		List<StoresInProvince> sips=new ArrayList<StoresInProvince>();
 		
-		return new ResponseEntity<>(new Result<Store>("ok",stores),HttpStatus.OK);
+		List<String> provinces=new ArrayList<String>();
+		for(Store store:stores){
+			String province=store.getProvince();
+			if(provinces.indexOf(province)==-1){
+				provinces.add(province);
+			}
+		}
+		for(String province:provinces){
+			List<Store> storesP=null;
+			if(type!=null&&!"".equals(type)){
+				storesP=storeService.findByProvinceAndType(province,type);
+			}else{
+				storesP=storeService.findByProvince(province);
+			}
+			StoresInProvince sip=new StoresInProvince(province,storesP);
+			sips.add(sip);
+		}
+		result.setMsg("ok");
+		result.setResults(sips);
+		return new ResponseEntity<>(result,HttpStatus.OK);
 	}
+	
 	/**根据id查找门店*/
+	@RequestMapping(value="/findById",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
 	public ResponseEntity<?> findById(@RequestParam("id") long id){
 //		Map<String,Object> map=new HashMap<String, Object>();
 //		map.put("Results", storeService.findById(id));
 //		map.put("msg", "ok");
 		List<Store> stores=new ArrayList<Store>();
 		stores.add(storeService.findById(id));
+		return new ResponseEntity<>(new Result<Store>("ok",stores),HttpStatus.OK);
+	}
+	/**根据province查找对应门店信息*/
+	@RequestMapping(value="/findByProvince",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> findByProvince(@RequestParam("province") String province){
+		List<Store> stores=storeService.findByProvince(province);
 		return new ResponseEntity<>(new Result<Store>("ok",stores),HttpStatus.OK);
 	}
 }
