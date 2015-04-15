@@ -23,7 +23,7 @@ public class ICampusCasExtensionApplication {
 	//<bean id="h2WebServer" class="org.h2.tools.Server" factory-method="createWebServer" init-method="start" destroy-method="stop">
 	//    <constructor-arg value="-web,-webAllowOthers,-webPort,8082"/>
 	//</bean>
-    /*上传时注视掉*/
+//    /*上传时注视掉*/
 //	@Bean
 //    Server h2Server() {
 //        Server server = new Server();

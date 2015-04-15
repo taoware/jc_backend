@@ -28,6 +28,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Table(name = "cas_users")
 public class User extends IdEntity {
 	
+	private UploadedFile avatar;//头像
+	
+	private Long roleId;//对应的角色权限
+	
 	private String notes;//备注
 
 	private String code;//登录名
@@ -40,7 +44,7 @@ public class User extends IdEntity {
 
 	private String gender;//性别
 	
-	private String location; //下拉地址
+	private String location;//省市区(下拉地址)
 	
 	private String category;//职务类别
 	
@@ -52,7 +56,7 @@ public class User extends IdEntity {
 	
 	private String plainPassword;//密码
 	
-	private boolean enable;
+	private boolean enable;//是否被禁用
 	
 	private Date createdTime;
 	
@@ -67,8 +71,37 @@ public class User extends IdEntity {
 	private User manager;
 	
 	private Set<Device> devices = new HashSet<Device>();
-
 	
+	private Role role;//角色权限
+
+	@ManyToOne
+	@JoinColumn(name="roleId",insertable = false, updatable = false)
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	@JsonIgnore
+	public Long getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(Long roleId) {
+		this.roleId = roleId;
+	}
+
+	@Transient
+	public UploadedFile getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(UploadedFile avatar) {
+		this.avatar = avatar;
+	}
+	@Column(nullable=false)
 	public String getAddress() {
 		return address;
 	}
@@ -81,7 +114,7 @@ public class User extends IdEntity {
 		this.enable = true;
 	}
 	
-	
+	@Column(nullable=false)
 	public String getNotes() {
 		return notes;
 	}
@@ -91,7 +124,7 @@ public class User extends IdEntity {
 		this.notes = notes;
 	}
 
-
+	@Column(nullable=false)
 	public String getLocation() {
 		return location;
 	}
@@ -101,7 +134,7 @@ public class User extends IdEntity {
 		this.location = location;
 	}
 
-
+	@Column(nullable=false)
 	public String getCategory() {
 		return category;
 	}
@@ -111,7 +144,7 @@ public class User extends IdEntity {
 		this.category = category;
 	}
 
-
+	@JsonIgnore
 	@Column(unique=true, nullable=false)
 	public String getCode() {
 		return code;
@@ -120,7 +153,8 @@ public class User extends IdEntity {
 	public void setCode(String code) {
 		this.code = code;
 	}
-
+	
+	@Column(nullable=false)
 	public String getName() {
 		return name;
 	}
@@ -128,7 +162,7 @@ public class User extends IdEntity {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	@JsonIgnore
 	public String getEmail() {
 		return email;
 	}
@@ -153,7 +187,7 @@ public class User extends IdEntity {
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
-
+	@Column(nullable=false)
 	public String getPosition() {
 		return position;
 	}
@@ -183,7 +217,8 @@ public class User extends IdEntity {
         this.plainPassword = plainPassword;
         this.password = User.encode(this.plainPassword);
     }
-
+    
+    @JsonIgnore
 	public boolean isEnable() {
 		return enable;
 	}
@@ -191,7 +226,8 @@ public class User extends IdEntity {
 	public void setEnable(boolean enable) {
 		this.enable = enable;
 	}
-
+	
+	@JsonIgnore
 	@Temporal(TemporalType.TIMESTAMP)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
 	public Date getCreatedTime() {
@@ -202,6 +238,7 @@ public class User extends IdEntity {
 		this.createdTime = createdTime;
 	}
 
+	@JsonIgnore
 	@Temporal(TemporalType.TIMESTAMP)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
 	public Date getUpdatedTime() {
@@ -211,7 +248,9 @@ public class User extends IdEntity {
 	public void setUpdatedTime(Date updatedTime) {
 		this.updatedTime = updatedTime;
 	}
+	
 	/*把取出的时间格式化显示?*/
+	@JsonIgnore
 	@Temporal(TemporalType.TIMESTAMP)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
 	public Date getDeletedTime() {
@@ -248,32 +287,32 @@ public class User extends IdEntity {
 		this.units = units;
 	}
 
-	@Transient
-	public Set<Unit> getSchools() {
-		
-		Set<Unit> schools = new HashSet<Unit>();
-		
-		for(Unit unit : this.units) {
-			Unit school = getSchool(unit);
-			if (null != school)
-				schools.add(school);
-		}
-		
-		return schools;
-	}
-	
-	private Unit getSchool(Unit unit) {
-		Unit parent = unit.getParent();
-		
-		if (null == parent)
-			return null;
-		
-		if (parent.getCategory().equals("School"))
-			return parent;
-		else {
-			return getSchool(unit.getParent());
-		}
-	}
+//	@Transient
+//	public Set<Unit> getSchools() {
+//		
+//		Set<Unit> schools = new HashSet<Unit>();
+//		
+//		for(Unit unit : this.units) {
+//			Unit school = getSchool(unit);
+//			if (null != school)
+//				schools.add(school);
+//		}
+//		
+//		return schools;
+//	}
+//	
+//	private Unit getSchool(Unit unit) {
+//		Unit parent = unit.getParent();
+//		
+//		if (null == parent)
+//			return null;
+//		
+//		if (parent.getCategory().equals("School"))
+//			return parent;
+//		else {
+//			return getSchool(unit.getParent());
+//		}
+//	}
 
 	@ManyToOne
 	@JoinColumn(name = "managerId")

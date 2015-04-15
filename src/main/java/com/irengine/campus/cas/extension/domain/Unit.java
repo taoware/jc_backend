@@ -30,7 +30,7 @@ public class Unit extends IdEntity {
 	
 	private String uriName;
 	
-	private String Category;
+	private String Category;//分类
 	
 	private Set<User> users = new HashSet<User>();
 		
@@ -46,6 +46,7 @@ public class Unit extends IdEntity {
 		this.enable = true;
 	}
 
+	//cascade:级联操作设置
 //	@JsonIgnore
 	@OneToMany(targetEntity=Unit.class, cascade=CascadeType.ALL, mappedBy="parent")
 	public Set<Unit> getChildren() {
@@ -91,7 +92,7 @@ public class Unit extends IdEntity {
 	public String getName() {
 		return name;
 	}
-
+/*设置上级组织Name改名*/
 	public void setName(String name) {
 		this.name = name;
 		

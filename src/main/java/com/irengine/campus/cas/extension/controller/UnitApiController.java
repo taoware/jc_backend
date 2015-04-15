@@ -31,7 +31,8 @@ public class UnitApiController {
     	
         return new ResponseEntity<>(units, HttpStatus.OK);
     }
-
+    //method = RequestMethod.PUT?
+    //设置最上级unit
     @RequestMapping(value = "/root", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> createRoot(@RequestBody Unit root) {

@@ -10,14 +10,14 @@ import org.springframework.data.repository.query.Param;
 import com.irengine.campus.cas.extension.domain.Unit;
 
 public interface UnitRepository extends CrudRepository<Unit, Long>{
-
+	//查找最上级unit
 	@Query("SELECT u FROM Unit u WHERE u.parent = null")
 	public Unit findRoot();
 
 	@Query("SELECT u FROM Unit u WHERE u.enable = true order by u.left")
 	public List<Unit> findAll();
-	
-	@Query("SELECT u FROM Unit u WHERE u.enable = true and u.left > :parentLeft and u.left < :parentRight order by u.left")
+	//查找所有下级unit
+	@Query("SELECT u FROM Unit u WHERE u.enable = true and u.left > :parentLeft and u.right < :parentRight order by u.left")
 	public List<Unit> findAllChildren(@Param("parentLeft") Long parentLeft, @Param("parentRight") Long parentRight);
 
 	@Query("SELECT u FROM Unit u WHERE u.enable = true and u.left < :leafLeft and u.right > :leafRight order by u.left")
@@ -26,7 +26,7 @@ public interface UnitRepository extends CrudRepository<Unit, Long>{
 	@Modifying
 	@Query("UPDATE Unit u SET u.left = u.left + 2 WHERE u.left > :parentLeft")
 	public void updateLRValue1(@Param("parentLeft") Long parentLeft);
-
+	
 	@Modifying
 	@Query("UPDATE Unit u SET u.left = :parentLeft WHERE u.left = 0")
 	public void updateLRValue2(@Param("parentLeft") Long parentLeft);

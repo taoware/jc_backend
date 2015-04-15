@@ -53,5 +53,9 @@ public class UtilityService {
 	public List<UploadedFile> listFiles(String entityType, Long entityId) {
 		return ufr.findByEntityTypeAndEntityId(entityType, entityId);
 	}
+	public void deleteByTypeAndEntityTypeAndEntityId(String type,
+			String entityType, long entityId, long fileId) {
+		ufr.deleteByTypeAndEntityTypeAndEntityId(type,entityType,entityId,fileId);
+	}
 	
 }

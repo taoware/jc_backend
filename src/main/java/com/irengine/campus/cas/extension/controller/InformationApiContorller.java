@@ -106,7 +106,7 @@ public class InformationApiContorller {
     @ResponseBody
     public ResponseEntity<?> create(@RequestBody Information information){
     	informationService.create(information);
-    	return new ResponseEntity<>(HttpStatus.OK);
+    	return new ResponseEntity<>(new Result<Information>("ok",null),HttpStatus.OK);
     }
     
     /**根据时间列出资讯*/
@@ -134,18 +134,18 @@ public class InformationApiContorller {
     @ResponseBody
     public ResponseEntity<?> delete(@RequestParam("id") Long id){
     	informationService.delete(id);
-    	return new ResponseEntity<>(HttpStatus.OK);
+    	return new ResponseEntity<>(new Result<Information>("ok",null),HttpStatus.OK);
     }
     /**修改资讯*/
     @RequestMapping(value="/update",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> update(@RequestBody Information information){
     	informationService.update(information);
-    	return new ResponseEntity<>(HttpStatus.OK);
+    	return new ResponseEntity<>(new Result<Information>("ok",null),HttpStatus.OK);
     }
     
     /**根据userId查找资讯*/
-    @RequestMapping(value="/findByUserId",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="/userId",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> findByUserId(@RequestParam("userId") Long userId){
 //    	Map<String,Object> map=new HashMap<String, Object>();
@@ -155,7 +155,7 @@ public class InformationApiContorller {
     	return new ResponseEntity<>(new Result<Information>("ok",informations),HttpStatus.OK);
     }
     /**根据id查找资讯*/
-    @RequestMapping(value="/findById",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="/id",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> findById(@RequestParam("id") Long id){
 //    	Map<String,Object> map=new HashMap<String, Object>();

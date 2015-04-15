@@ -8,6 +8,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name="ss_uploaded_file")
 public class UploadedFile {
@@ -33,6 +35,7 @@ public class UploadedFile {
 		this.photoDescription = photoDescription;
 	}
 	@Column(nullable=false)
+	@JsonIgnore
 	public String getType() {
 		return type;
 	}
@@ -48,6 +51,7 @@ public class UploadedFile {
 		this.fileId = fileId;
 	}
 	@Column(nullable = false)
+	@JsonIgnore
 	public String getEntityType() {
 		return entityType;
 	}
@@ -58,10 +62,12 @@ public class UploadedFile {
 		return entityId;
 	}
 	@Column(nullable = false)
+	@JsonIgnore
 	public void setEntityId(Long entityId) {
 		this.entityId = entityId;
 	}
 	@Column(nullable = false, unique = true)
+	@JsonIgnore
 	public String getName() {
 		return name;
 	}
@@ -69,6 +75,7 @@ public class UploadedFile {
 		this.name = name;
 	}
 	@Column(nullable = false)
+	@JsonIgnore
 	public Long getSize() {
 		return size;
 	}
