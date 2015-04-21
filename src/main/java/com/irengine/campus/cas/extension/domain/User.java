@@ -15,6 +15,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -29,8 +30,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class User extends IdEntity {
 	
 	private UploadedFile avatar;//头像
-	
-	private Long roleId;//对应的角色权限
 	
 	private String notes;//备注
 
@@ -66,31 +65,24 @@ public class User extends IdEntity {
 	
 	private Set<Unit> units = new HashSet<Unit>();
 	
-	//	private Set<Unit> schools = new HashSet<Unit>();
+	//private Set<Unit> schools=new HashSet<Unit>();
+	
+	private Set<Role> roles=new HashSet<Role>();
 	
 	private User manager;
 	
 	private Set<Device> devices = new HashSet<Device>();
 	
-	private Role role;//角色权限
+	private IM im;
 
-	@ManyToOne
-	@JoinColumn(name="roleId",insertable = false, updatable = false)
-	public Role getRole() {
-		return role;
+	@OneToOne
+	@JoinColumn(name = "IMId")
+	public IM getIm() {
+		return im;
 	}
 
-	public void setRole(Role role) {
-		this.role = role;
-	}
-
-	@JsonIgnore
-	public Long getRoleId() {
-		return roleId;
-	}
-
-	public void setRoleId(Long roleId) {
-		this.roleId = roleId;
+	public void setIm(IM im) {
+		this.im = im;
 	}
 
 	@Transient
@@ -260,6 +252,7 @@ public class User extends IdEntity {
 	public void setDeletedTime(Date deletedTime) {
 		this.deletedTime = deletedTime;
 	}
+	
 	/*	 fetch = FetchType.EAGER:如果是EAGER，那么表示取出这条数据时，
 	它关联的数据也同时取出放入内存中如果是LAZY，那么取出这条数据时，
 	它关联的数据并不取出来，在同一个session中，什么时候要用，
@@ -269,6 +262,7 @@ public class User extends IdEntity {
 	/*CascadeType.PERSIST级联刷新：获取order对象里也同时也重新获
 	 * 取最新的items时的对象。对应EntityManager的refresh(object)方
 	 * 法有效。即会重新查询数据库里的最新数据  */
+	
     @ManyToMany(
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             targetEntity = Unit.class,
@@ -286,7 +280,8 @@ public class User extends IdEntity {
 	public void setUnits(Set<Unit> units) {
 		this.units = units;
 	}
-
+	
+	
 //	@Transient
 //	public Set<Unit> getSchools() {
 //		
@@ -313,6 +308,23 @@ public class User extends IdEntity {
 //			return getSchool(unit.getParent());
 //		}
 //	}
+    @ManyToMany(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            targetEntity = Role.class,
+            fetch = FetchType.EAGER
+        )
+    @JoinTable(
+            name="cas_user_role",
+            joinColumns=@JoinColumn(name="userId"),
+            inverseJoinColumns=@JoinColumn(name="roleId")
+        )
+	public Set<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
 
 	@ManyToOne
 	@JoinColumn(name = "managerId")
@@ -333,7 +345,7 @@ public class User extends IdEntity {
 	public void setDevices(Set<Device> devices) {
 		this.devices = devices;
 	}
-	
+	/**加密处理*/
 	public static String encode(String plainPassword) {
         MessageDigest md;
 		try {

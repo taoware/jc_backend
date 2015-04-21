@@ -3,14 +3,12 @@ package com.irengine.campus.cas.extension.domain;
 import java.util.Date;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -26,13 +24,25 @@ public class Square {
 	private Long id;// squareId
 	private Long unitId;//unitId
 	private Long userId;//userId(手动导入)
-	private String type;//员工,供应商,联采(自动导入,根据user的position)
+	private String type;//广场类型:员工,联采,供应
 	private String information;// 信息
 	private Date createTime;// 创建时间
 	private Date updateTime;// 修改时间
 	private Date deleteTime;// 删除时间
 	private Set<UploadedFile> photos;// 对应的图片(多张)
 	private Unit unit;
+	private User user;
+	
+	@ManyToOne
+	@JoinColumn(name="userId",insertable = false, updatable = false)
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
 	@Id
 	@GeneratedValue
 	public Long getId() {
@@ -43,6 +53,7 @@ public class Square {
 		this.id = id;
 	}
 	
+	@JsonIgnore
 	public Long getUserId() {
 		return userId;
 	}
@@ -51,6 +62,7 @@ public class Square {
 		this.userId = userId;
 	}
 
+	@JsonIgnore
 	public Long getUnitId() {
 		return unitId;
 	}
@@ -63,7 +75,6 @@ public class Square {
 	public String getName() {
 		return unit.getName()+type;
 	}
-	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="unitId",insertable = false, updatable = false)
 	public Unit getUnit() {

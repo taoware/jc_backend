@@ -8,9 +8,16 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.irengine.campus.cas.extension.domain.IM;
 import com.irengine.campus.cas.extension.domain.User;
 
 public class testCase {
+	@Test
+	public void test02(){
+		IM im=new IM("huang","123456a");
+		String json="{\"username\":\""+im.getUsername()+"\",\"password\":\""+im.getPassword()+"\"}";
+		System.out.println(json);
+	}
 	@Test
 	public void test01(){
 		String str="ssss.jpg";

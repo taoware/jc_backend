@@ -13,4 +13,6 @@ public interface SquareRepository extends CrudRepository<Square, Long>{
 	List<Square> findById(@Param("id") Long id);
 	@Query("select s from Square s where userId=:userId")
 	List<Square> findByUserId(@Param("userId") Long userId);
+	@Query("Select max(s.id) from Square s")
+	Long getMaxId();
 }

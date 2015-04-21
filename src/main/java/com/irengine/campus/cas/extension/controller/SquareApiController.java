@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.irengine.campus.cas.extension.domain.Message;
 import com.irengine.campus.cas.extension.domain.Result;
 import com.irengine.campus.cas.extension.domain.Square;
 import com.irengine.campus.cas.extension.service.SquareService;
@@ -32,8 +33,9 @@ public class SquareApiController {
 			@PathVariable("unitId") long unitId) {
 		square.setUserId(userId);
 		square.setUnitId(unitId);
+		long nextId=squareService.getNextId();
 		squareService.create(square);
-		return new ResponseEntity<>(new Result<Square>("ok", null),
+		return new ResponseEntity<>(new Message(""+nextId),
 				HttpStatus.OK);
 	}
 

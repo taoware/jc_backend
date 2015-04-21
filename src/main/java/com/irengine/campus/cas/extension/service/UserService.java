@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.irengine.campus.cas.extension.domain.Device;
+import com.irengine.campus.cas.extension.domain.Role;
 import com.irengine.campus.cas.extension.domain.UploadedFile;
 import com.irengine.campus.cas.extension.domain.User;
+import com.irengine.campus.cas.extension.repository.RoleRepository;
 import com.irengine.campus.cas.extension.repository.UploadedFileRepository;
 import com.irengine.campus.cas.extension.repository.UserRepository;
 import com.irengine.commons.DateProvider;
@@ -23,6 +25,8 @@ public class UserService {
 	UserRepository userRepository;
 	@Autowired
 	UploadedFileRepository ufr;
+	@Autowired
+	RoleRepository roleRepository;
 
 	public List<User> list() {
 		List<User> users = (List<User>) userRepository.findAll();
@@ -175,6 +179,13 @@ public class UserService {
 		}
 		return users;
 	}
+
+	public void setRole(long userId, long roleId) {
+		User user=userRepository.findOne(userId);
+		Role role=roleRepository.findOne(roleId);
+		user.getRoles().add(role);
+	}
+
 }
 
 

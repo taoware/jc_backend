@@ -37,3 +37,109 @@ insert into CAS_USER_UNIT values(4,7);
 insert into CAS_USER_UNIT values(5,8);
 insert into CAS_USER_UNIT values(5,9);
 insert into CAS_USER_UNIT values(6,10);
+/*角色种子数据:*/
+Insert into cas_role(id,role) values(1,'clerk');
+Insert into cas_role(id,role) values(2, 'admin');
+Insert into cas_role(id,role) values(3, 'buyer');
+Insert into cas_role(id,role) values(4, 'supplier');
+/*权限种子数据:*/
+Insert into cas_permission (id,per_name) values(1,'im');
+Insert into cas_permission (id,per_name) values(2,'cloudOffice');
+Insert into cas_permission (id,per_name) values(3,'contaces');
+Insert into cas_permission (id,per_name) values(4,'groupAvail');
+Insert into cas_permission (id,per_name) values(5,'newsCreate');
+Insert into cas_permission (id,per_name) values(6,' newsAvail');
+Insert into cas_permission (id,per_name) values(7,' storeCreate');
+Insert into cas_permission (id,per_name) values(8,' storeAvail');
+Insert into cas_permission (id,per_name) values(9,' crowdCreate');
+Insert into cas_permission (id,per_name) values(10,' crowdAvail');
+Insert into cas_permission (id,per_name) values(11,' infoCreate');
+Insert into cas_permission (id,per_name) values(12,' infoAvail');
+Insert into cas_permission (id,per_name) values(13,' purchasingCreate');
+Insert into cas_permission (id,per_name) values(14,' purchasingAvail');
+Insert into cas_permission (id,per_name) values(15,' staffSquareCreate');
+Insert into cas_permission (id,per_name) values(16,' staffSquareAvail');
+Insert into cas_permission (id,per_name) values(17,' supplierSquareCreate');
+Insert into cas_permission (id,per_name) values(18,' supplierSquareAvail');
+Insert into cas_permission (id,per_name) values(19,' saleInfoCreate');
+Insert into cas_permission (id,per_name) values(20,' saleInfoAvail');
+Insert into cas_permission (id,per_name) values(21,' staffTrainCreate');
+Insert into cas_permission (id,per_name) values(22,' staffTrainAvail');
+Insert into cas_permission (id,per_name) values(23,' applyForSupplier');
+Insert into cas_permission (id,per_name) values(24,' audit');
+Insert into cas_permission (id,per_name) values(25,' configurationAudit');
+/*用户关联角色种子数据:*/
+Insert into CAS_USER_ROLE values(1,1);
+Insert into CAS_USER_ROLE values(2,2);
+Insert into CAS_USER_ROLE values(3,3);
+Insert into CAS_USER_ROLE values(4,4);
+Insert into CAS_USER_ROLE values(5,1);
+Insert into CAS_USER_ROLE values(6,2);
+/*角色关联权限 种子数据:
+店员权限*/
+Insert into CAS_ROLE_PERMISSION values(1,1);
+Insert into CAS_ROLE_PERMISSION values(1,2);
+Insert into CAS_ROLE_PERMISSION values(1,3);
+Insert into CAS_ROLE_PERMISSION values(1,4);
+Insert into CAS_ROLE_PERMISSION values(1,6);
+Insert into CAS_ROLE_PERMISSION values(1,8);
+Insert into CAS_ROLE_PERMISSION values(1,12);
+Insert into CAS_ROLE_PERMISSION values(1,16);
+Insert into CAS_ROLE_PERMISSION values(1,22);
+/*管理员权限*/
+Insert into CAS_ROLE_PERMISSION values(2,1);
+Insert into CAS_ROLE_PERMISSION values(2,2);
+Insert into CAS_ROLE_PERMISSION values(2,3);
+Insert into CAS_ROLE_PERMISSION values(2,4);
+Insert into CAS_ROLE_PERMISSION values(2,5);
+Insert into CAS_ROLE_PERMISSION values(2,6);
+Insert into CAS_ROLE_PERMISSION values(2,7);
+Insert into CAS_ROLE_PERMISSION values(2,8);
+Insert into CAS_ROLE_PERMISSION values(2,9);
+Insert into CAS_ROLE_PERMISSION values(2,10);
+Insert into CAS_ROLE_PERMISSION values(2,11);
+Insert into CAS_ROLE_PERMISSION values(2,12);
+Insert into CAS_ROLE_PERMISSION values(2,15);
+Insert into CAS_ROLE_PERMISSION values(2,16);
+Insert into CAS_ROLE_PERMISSION values(2,17);
+Insert into CAS_ROLE_PERMISSION values(2,18);
+Insert into CAS_ROLE_PERMISSION values(2,19);
+Insert into CAS_ROLE_PERMISSION values(2,20);
+Insert into CAS_ROLE_PERMISSION values(2,21);
+Insert into CAS_ROLE_PERMISSION values(2,22);
+Insert into CAS_ROLE_PERMISSION values(2,25);
+/*联采权限:*/
+Insert into CAS_ROLE_PERMISSION values(3,1);
+Insert into CAS_ROLE_PERMISSION values(3,2);
+Insert into CAS_ROLE_PERMISSION values(3,3);
+Insert into CAS_ROLE_PERMISSION values(3,4);
+Insert into CAS_ROLE_PERMISSION values(3,6);
+Insert into CAS_ROLE_PERMISSION values(3,8);
+Insert into CAS_ROLE_PERMISSION values(3,10);
+Insert into CAS_ROLE_PERMISSION values(3,12);
+Insert into CAS_ROLE_PERMISSION values(3,13);
+Insert into CAS_ROLE_PERMISSION values(3,14);
+Insert into CAS_ROLE_PERMISSION values(3,16);
+Insert into CAS_ROLE_PERMISSION values(3,22);
+/*供应商权限:*/
+Insert into CAS_ROLE_PERMISSION values(4,1);
+Insert into CAS_ROLE_PERMISSION values(4,2);
+Insert into CAS_ROLE_PERMISSION values(4,3);
+Insert into CAS_ROLE_PERMISSION values(4,4);
+Insert into CAS_ROLE_PERMISSION values(4,6);
+Insert into CAS_ROLE_PERMISSION values(4,8);
+Insert into CAS_ROLE_PERMISSION values(4,12);
+Insert into CAS_ROLE_PERMISSION values(4,18);
+Insert into CAS_ROLE_PERMISSION values(4,20);
+Insert into CAS_ROLE_PERMISSION values(4,23);
+
+
+
+
+
+
+
+
+
+
+

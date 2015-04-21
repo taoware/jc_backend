@@ -85,4 +85,13 @@ public class SquareService {
 		return squares;
 	}
 
+	public long getNextId() {
+		Long maxId=squareRepository.getMaxId();
+		if(maxId==null||"".equals(maxId)){
+			maxId=(long) 0;
+		}
+		long nextId=maxId+1;
+		return nextId;
+	}
+
 }

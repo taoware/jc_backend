@@ -20,7 +20,7 @@ public interface UserRepository extends CrudRepository<User, Long>{
 	@Query("SELECT u FROM User u WHERE u.code=:code")
 	public User findByCode(@Param("code") String code);
 	
-	/**通过电话查找用户信息*/
 	@Query("SELECT u FROM User u WHERE u.mobile=:mobile")
 	public User findByMobile(@Param("mobile") String mobile);
+	
 }
