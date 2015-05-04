@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.irengine.campus.cas.extension.domain.Result;
 import com.irengine.campus.cas.extension.domain.UploadedFile;
 import com.irengine.campus.cas.extension.service.UtilityService;
+import com.irengine.commons.ResizeImage;
 
 @Controller
 public class FileUploadController {
@@ -53,16 +55,7 @@ public class FileUploadController {
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	public @ResponseBody String handleFileUpload(
 			@RequestParam("file") MultipartFile file, HttpServletRequest request) {
-
-		// logger.info是可以输出log文件中
-		// getRealPath取绝对路径
-		// 比如，有个servlet 叫 UploadServlet，它部署在tomcat 下面以后的绝对路径如下：
-		// "C:\Program Files\apache-tomcat-8.0.3\webapps\UploadServlet"
-		// 那么，
-		// ServletContext.getRealPath("/") 返回 "C:\Program
-		// Files\apache-tomcat-8.0.3\webapps\UploadServlet"
 		logger.info(request.getSession().getServletContext().getRealPath("/"));
-
 		// name??url??
 		String name = request.getSession().getServletContext().getRealPath("/")
 				+ "/uploaded/" + file.getOriginalFilename();
@@ -98,78 +91,124 @@ public class FileUploadController {
 	 * upload file for entity which given entity type and entity id sample
 	 * directory: /upload/entityType/entityId/timestamp_file
 	 */
-	 /**上传图片指定上属(按图片所属类决定图片放在哪个文件夹里)*/
-	 @RequestMapping(value="/upload/{type}/{eType}/{eId}",
-	 method=RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	 @ResponseBody
-	 public ResponseEntity<?> createUploadedFile(@PathVariable("type") String
-	 type,@PathVariable("eType") String entityType, @PathVariable("eId") Long
-	 entityId,
-	 @RequestParam("file") MultipartFile file, HttpServletRequest request)
-	 throws IOException {
-	
-	 String uploadDirectoryName = getWebDirectory(request);
-	 logger.info(uploadDirectoryName);
-	 //fileUtils
-	 File uploadDirectory = new File(uploadDirectoryName);
-	 //创建目录?
-	 FileUtils.forceMkdir(uploadDirectory);
-	
-	 //改名字?
-	 String uploadFileName = String.format("%d%s", System.currentTimeMillis(),
-	 file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")));
-	 //决定文件放入哪个文件夹(根据该文件所属的类)
-	 File uploadFile = new File(StringUtils.join(new Object[]{
-	 uploadDirectoryName, entityType, entityId, uploadFileName }, "/"));
-	
-	 if (!file.isEmpty()) {
-	 FileUtils.writeByteArrayToFile(uploadFile, file.getBytes());
-	 UploadedFile uploadedFile = utilityService.createFile(type,entityType,
-	 entityId, uploadFileName, file.getSize());
-	 return new ResponseEntity<>(uploadedFile, HttpStatus.CREATED);
-	 }
-	 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-	
-	 }
-//	/** 上传图片指定上属(按图片所属类决定图片放在哪个文件夹里) */
-//	@RequestMapping(value = "/upload/{type}/{eType}/{eId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-//	@ResponseBody
-//	public ResponseEntity<?> createUploadedFile(
-//			@PathVariable("type") String type,
-//			@PathVariable("eType") String entityType,
-//			@PathVariable("eId") Long entityId,
-//			@RequestParam("files") List<MultipartFile> files,
-//			HttpServletRequest request) throws IOException {
-//		List<UploadedFile> uFiles = new ArrayList<UploadedFile>();
-//		for (MultipartFile file : files) {
-//			String uploadDirectoryName = getWebDirectory(request);
-//			logger.info(uploadDirectoryName);
-//			// fileUtils
-//			File uploadDirectory = new File(uploadDirectoryName);
-//			// 创建目录?
-//			FileUtils.forceMkdir(uploadDirectory);
-//
-//			// 改名字?
-//			String uploadFileName = String.format(
-//					"%d%s",
-//					System.currentTimeMillis(),
-//					file.getOriginalFilename().substring(
-//							file.getOriginalFilename().lastIndexOf(".")));
-//			// 决定文件放入哪个文件夹(根据该文件所属的类)
-//			File uploadFile = new File(StringUtils.join(
-//					new Object[] { uploadDirectoryName, entityType, entityId,
-//							uploadFileName }, "/"));
-//
-//			FileUtils.writeByteArrayToFile(uploadFile, file.getBytes());
-//			UploadedFile uploadedFile = utilityService.createFile(type,
-//					entityType, entityId, uploadFileName, file.getSize());
-//			uFiles.add(uploadedFile);
-//			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//		}
-//		return new ResponseEntity<>(new Result<UploadedFile>("ok", uFiles),
-//				HttpStatus.OK);
-//
-//	}
+	/** 上传图片指定上属(按图片所属类决定图片放在哪个文件夹里) */
+	// @RequestMapping(value = "/upload/{type}/{eType}/{eId}", method =
+	// RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	// @ResponseBody
+	// public ResponseEntity<?> createUploadedFile(
+	// @PathVariable("type") String type,
+	// @PathVariable("eType") String entityType,
+	// @PathVariable("eId") Long entityId,
+	// @RequestParam("file") MultipartFile file, HttpServletRequest request)
+	// throws IOException {
+	//
+	// String uploadDirectoryName = getWebDirectory(request);
+	// logger.info(uploadDirectoryName);
+	// File uploadDirectory = new File(uploadDirectoryName);
+	// FileUtils.forceMkdir(uploadDirectory);
+	// String uploadFileName = String.format(
+	// "%d%s",
+	// System.currentTimeMillis(),
+	// file.getOriginalFilename().substring(
+	// file.getOriginalFilename().lastIndexOf(".")));
+	// File uploadFile = new File(StringUtils.join(new Object[] {
+	// uploadDirectoryName, entityType, entityId, uploadFileName },
+	// "/"));
+	// if (!file.isEmpty()) {
+	// FileUtils.writeByteArrayToFile(uploadFile, file.getBytes());
+	// UploadedFile uploadedFile = utilityService.createFile(type,
+	// entityType, entityId, uploadFileName, file.getSize());
+	// return new ResponseEntity<>(uploadedFile, HttpStatus.CREATED);
+	// }
+	// return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	// }
+	@RequestMapping(value = "/upload/{eType}/{eId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> createUploadedFile(
+			@PathVariable("eType") String entityType,
+			@PathVariable("eId") Long entityId,
+			@RequestParam(value = "file1", required = false) MultipartFile file1,
+			@RequestParam(value = "file2", required = false) MultipartFile file2,
+			@RequestParam(value = "file3", required = false) MultipartFile file3,
+			@RequestParam(value = "file4", required = false) MultipartFile file4,
+			@RequestParam(value = "file5", required = false) MultipartFile file5,
+			@RequestParam(value = "file6", required = false) MultipartFile file6,
+			@RequestParam(value = "file7", required = false) MultipartFile file7,
+			@RequestParam(value = "file8", required = false) MultipartFile file8,
+			@RequestParam(value = "file9", required = false) MultipartFile file9,
+			HttpServletRequest request) throws IOException {
+		List<MultipartFile> files = new ArrayList<MultipartFile>();
+		files.add(file1);
+		files.add(file2);
+		files.add(file3);
+		files.add(file4);
+		files.add(file5);
+		files.add(file6);
+		files.add(file7);
+		files.add(file8);
+		files.add(file9);
+		// 删除以前文件数据库信息
+		utilityService.deleteByTypeAndEntityTypeAndEntityId(entityType,
+				entityId);
+		List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
+		String uploadDirectoryName = getWebDirectory(request);
+		/* 删除该目录下的文件 */
+		File deleteFile = new File(StringUtils.join(new Object[] {
+				uploadDirectoryName, entityType, entityId }, "/"));
+		if (deleteFile.isDirectory()) {
+			File[] deleteFiles = deleteFile.listFiles();
+			if (deleteFiles.length > 0) {
+				for (int i = 0; i < deleteFiles.length; i++) {
+					deleteFiles[i].delete();
+				}
+			}
+		}
+		for (MultipartFile file : files) {
+			if (file == null || file.isEmpty()) {
+			} else {
+				File uploadDirectory = new File(uploadDirectoryName);
+				FileUtils.forceMkdir(uploadDirectory);
+				/* 文件重命名 */
+				String uploadFileName = String
+						.format("%d%s",
+								System.currentTimeMillis(),
+								file.getOriginalFilename().substring(
+										file.getOriginalFilename().lastIndexOf(
+												".")));
+				String uploadFileUrl = StringUtils.join(new Object[] {
+						uploadDirectoryName, entityType, entityId,
+						uploadFileName }, "/");
+				File uploadFile = new File(uploadFileUrl);
+				// 上传文件
+				FileUtils.writeByteArrayToFile(uploadFile, file.getBytes());
+				UploadedFile uploadedFile = utilityService.createFile("large",
+						entityType, entityId, uploadFileName, file.getSize());
+				/* 生成缩略图并保存在UploadedFile对应的表中 */
+				String fileUrl = uploadFileUrl;
+				System.out.println("-------------------------------------------------"+uploadFileUrl);
+				String outputFolder = uploadFileUrl.substring(0,
+						uploadFileUrl.lastIndexOf("/"));
+				String thumbnailName = ResizeImage.createThumbnail(fileUrl,
+						outputFolder);
+				utilityService.createFile("small", entityType, entityId,
+						thumbnailName, 0L);
+				uploadedFile.setThumbnailUrl(StringUtils.join(new Object[] {
+						entityType, entityId, thumbnailName}, "/"));
+				uploadedFiles.add(uploadedFile);
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			}
+		}
+		return new ResponseEntity<>(new Result<UploadedFile>("ok",
+				uploadedFiles), HttpStatus.OK);
+	}
 
 	/** 输入查找信息查找出指定图片 */
 	@RequestMapping(value = "/upload/{type}/{eType}/{eId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

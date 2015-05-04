@@ -90,9 +90,7 @@ public class UnitApiController {
     @RequestMapping(value = "/{id}/user/{userId}", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<?> addUser(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
-
     	unitService.addUser(id, userId);
-    	
         return new ResponseEntity<>(HttpStatus.OK);
     }
     

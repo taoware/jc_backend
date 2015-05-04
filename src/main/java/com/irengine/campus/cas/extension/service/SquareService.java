@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.irengine.campus.cas.extension.domain.Square;
-import com.irengine.campus.cas.extension.domain.Store;
 import com.irengine.campus.cas.extension.domain.UploadedFile;
-import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.repository.SquareRepository;
 import com.irengine.commons.DateProvider;
 
@@ -24,24 +22,20 @@ public class SquareService {
 	UserService userService;
 	@Autowired
 	UtilityService us;
-	
+
 	public void create(Square square) {
 		square.setCreateTime(DateProvider.DEFAULT.getDate());
 		square.setUpdateTime(DateProvider.DEFAULT.getDate());
-		User user=userService.findById(square.getUserId());
-		if(user!=null){
-			square.setType(user.getPosition());
-		}
 		squareRepository.save(square);
 	}
 
 	public List<Square> findAll() {
-		List<Square> squares=(List<Square>) squareRepository.findAll();
+		List<Square> squares = (List<Square>) squareRepository.findAll();
 		addPhotos(squares);
-//		for(Square square:squares){
-//			User user=userService.findById(square.getUserId());
-//			square.setUser(user);
-//		}
+		// for(Square square:squares){
+		// User user=userService.findById(square.getUserId());
+		// square.setUser(user);
+		// }
 		return squares;
 	}
 
@@ -53,45 +47,77 @@ public class SquareService {
 		square.setUpdateTime(DateProvider.DEFAULT.getDate());
 		squareRepository.save(square);
 	}
-	/**关联查询照片*/
+
+	/** 关联查询照片 */
 	private void addPhotos(List<Square> squares) {
-		for(Square square:squares){
-			List<UploadedFile> largeFiles=us.findByEntityTypeAndEntityId("large","square", square.getId());
-			if(largeFiles.size()>0){
-				for(UploadedFile file:largeFiles){
-					List<UploadedFile> smallFiles=us.findByEntityTypeAndEntityId("small","square", square.getId());
-					if(smallFiles.size()>0){
-						file.setThumbnailUrl(smallFiles.get(0).getUrl());
-					}
+		for (Square square : squares) {
+			List<UploadedFile> largeFiles = us.findByEntityTypeAndEntityId(
+					"large", "square", square.getId());
+			Set<UploadedFile> setFiles = new HashSet<UploadedFile>();
+			if (largeFiles.size() > 0) {
+				for(int i=0;i<(largeFiles.size()>9?9:largeFiles.size());i++){
+					largeFiles.get(i).setThumbnailUrl(largeFiles.get(i).getUrl());
+					setFiles.add(largeFiles.get(i));
 				}
-				Set<UploadedFile> setFiles=new HashSet<UploadedFile>();
-				for(UploadedFile file:largeFiles){
-					setFiles.add(file);
-				}
-				square.setPhotos(setFiles);
 			}
+			square.setPhotos(setFiles);
 		}
 	}
 
-	public List<Square> findById(long id) {
-		List<Square> squares=squareRepository.findById(id);
-		addPhotos(squares);
-		return squares;
+	public Square findById(long id) {
+		Square square = squareRepository.findById(id);
+		addPhotos(square);
+		return square;
+	}
+
+	private void addPhotos(Square square) {
+		List<UploadedFile> largeFiles = us.findByEntityTypeAndEntityId(
+				"large", "square", square.getId());
+		Set<UploadedFile> setFiles = new HashSet<UploadedFile>();
+		if (largeFiles.size() > 0) {
+			for(int i=0;i<(largeFiles.size()>9?9:largeFiles.size());i++){
+				largeFiles.get(i).setThumbnailUrl(largeFiles.get(i).getUrl());
+				setFiles.add(largeFiles.get(i));
+			}
+		}
+		square.setPhotos(setFiles);
 	}
 
 	public List<Square> findByUserId(long userId) {
-		List<Square> squares=squareRepository.findByUserId(userId);
+		List<Square> squares = squareRepository.findByUserId(userId);
 		addPhotos(squares);
 		return squares;
 	}
 
-	public long getNextId() {
-		Long maxId=squareRepository.getMaxId();
-		if(maxId==null||"".equals(maxId)){
-			maxId=(long) 0;
+	public long getMaxId() {
+		Long maxId = squareRepository.getMaxId();
+		if (maxId == null || "".equals(maxId)) {
+			maxId = (long) 0;
 		}
-		long nextId=maxId+1;
-		return nextId;
+		return maxId;
+	}
+
+	public List<Square> findByType(String type) {
+		List<Square> squares = squareRepository.findByType(type);
+		addPhotos(squares);
+		return squares;
+	}
+
+	public List<Square> findByTypeAndLocation(String type, String location) {
+		List<Square> squares = squareRepository.findByType(type);
+		if (squares.size() > 0) {
+			for (int i = 0; i < squares.size(); i++) {
+				if (squares.get(i).getUser().getLocation().indexOf(location) == -1) {
+					squares.remove(i);
+					--i;
+				}
+			}
+		}
+		return squares;
+	}
+
+	public List<Square> findByUserIdAndUnitId(long userId, long unitId) {
+		return squareRepository.findByUserIdAndUnitId(userId, unitId);
 	}
 
 }

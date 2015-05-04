@@ -1,5 +1,7 @@
 package com.irengine.campus.cas.extension.service;
 
+import http.Url;
+
 import java.io.OutputStream;
 
 import javax.net.ssl.HostnameVerifier;
@@ -23,17 +25,52 @@ public class IMService {
 	/**注册环信*/
 	public String create(String username, String password) {
 		IM im=new IM(username,password);
-		String url="https://a1.easemob.com/gxcm/jycs/users";
+		String json="{\"username\":\""+username+"\",\"password\":\""+password+"\"}";
 		String msg;
 		try {
-			msg = sendPost(im, url);
+			msg = sendPost(json, Url.imUsers,"","");
+			if("success".equals(msg)){
+				imRepository.save(im);
+			}
 		} catch (Exception e) {
-			msg="环信服务器异常";
+			msg="error";
 			e.printStackTrace();
 		}
 		return msg;
 	}
 
+	/**在环信上创建群组*/
+	public String chatgroups(String groupname,String desc,
+			boolean pub,int maxusers,boolean approval,String owner,
+			String members){
+		String json="";
+		if("".equals(members)||members==null){
+			json = "{\"groupname\":\""+groupname+"\","
+					+ "\"desc\":\""+desc+"\","
+					+ "\"public\":"+pub+","
+					+ "\"maxusers\":"+maxusers+","
+					+ "\"approval\":"+approval+","
+					+ "\"owner\":\""+owner+"\"}";
+		}else{
+			 json = "{\"groupname\":\""+groupname+"\","
+					+ "\"desc\":\""+desc+"\","
+					+ "\"public\":"+pub+","
+					+ "\"maxusers\":"+maxusers+","
+					+ "\"approval\":"+approval+","
+					+ "\"owner\":\""+owner+"\","
+					+ "\"members\":"+members+"}";
+		}
+		String path=Url.imChatgroupsUrl;
+		String header1="Authorization";
+		String header2="Bearer "+Url.imToken;
+		String msg="";
+		try {
+			msg=sendPost(json, path, header1,header2);
+		} catch (Exception e) {
+			msg="error";
+		}
+		return msg;
+	}
 	static class miTM implements javax.net.ssl.TrustManager,
 			javax.net.ssl.X509TrustManager {
 		public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -74,13 +111,12 @@ public class IMService {
 				.getSocketFactory());
 	}
 
-	String sendPost(IM im, String path) throws Exception{
+	String sendPost(String json, String path,String header1,String header2) throws Exception{
 		HostnameVerifier hv = new HostnameVerifier() {
 			public boolean verify(String urlHostName, SSLSession session) {
 				return true;
 			}
 		};
-		String json="{\"username\":\""+im.getUsername()+"\",\"password\":\""+im.getPassword()+"\"}";
 		byte[] data = json.getBytes();
 		trustAllHttpsCertificates();
 		HttpsURLConnection.setDefaultHostnameVerifier(hv);
@@ -92,7 +128,9 @@ public class IMService {
 		conn.setReadTimeout(20 * 1000);// 设置读取超时时间为20秒
 		// 使用 URL 连接进行输出，则将 DoOutput标志设置为 true
 		conn.setDoOutput(true);
-
+		if(!"".equals(header1)){
+			conn.setRequestProperty(header1,header2);
+		}
 		conn.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
 		// conn.setRequestProperty("Content-Encoding","gzip");
 		conn.setRequestProperty("Content-Length", String.valueOf(data.length));
@@ -102,10 +140,10 @@ public class IMService {
 		String msg = "";// 保存调用http服务后的响应信息
 		// 如果请求响应码是200，则表示成功
 		if (conn.getResponseCode() == 200) {
-			msg="环信注册成功";
-			imRepository.save(im);
+			msg="success";
+			//imRepository.save(im);
 		} else {
-			msg = "环信注册失败";
+			msg = "error";
 	}
 		conn.disconnect();// 断开连接
 		return msg;

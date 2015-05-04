@@ -47,7 +47,7 @@ public class Unit extends IdEntity {
 	}
 
 	//cascade:级联操作设置
-//	@JsonIgnore
+	@JsonIgnore
 	@OneToMany(targetEntity=Unit.class, cascade=CascadeType.ALL, mappedBy="parent")
 	public Set<Unit> getChildren() {
 		return children;

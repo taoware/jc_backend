@@ -16,7 +16,7 @@ public class UtilityService {
 	@Autowired
 	UploadedFileRepository ufr;
 	/**创建UploadedFile*/
-	public UploadedFile createFile(String type,String entityType, long entityId,
+	public UploadedFile createFile(String type,String entityType, Long entityId,
 			String uploadFileName, long size) {
 		UploadedFile uploadedFile=new UploadedFile();
 		uploadedFile.setType(type);
@@ -56,6 +56,10 @@ public class UtilityService {
 	public void deleteByTypeAndEntityTypeAndEntityId(String type,
 			String entityType, long entityId, long fileId) {
 		ufr.deleteByTypeAndEntityTypeAndEntityId(type,entityType,entityId,fileId);
+	}
+	public void deleteByTypeAndEntityTypeAndEntityId(String entityType,
+			Long entityId) {
+		ufr.deleteByTypeAndEntityTypeAndEntityId(entityType,entityId);
 	}
 	
 }

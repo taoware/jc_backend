@@ -29,6 +29,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Table(name = "cas_users")
 public class User extends IdEntity {
 	
+	private boolean audit;//是否审核通过
+	
+	private boolean enableIM;//环信是否被注册上
+	
 	private UploadedFile avatar;//头像
 	
 	private String notes;//备注
@@ -36,7 +40,7 @@ public class User extends IdEntity {
 	private String code;//登录名
 	
 	private String name;//真实姓名
-
+	
 	private String email;//邮箱
 	
 	private String mobile;//手机号
@@ -69,11 +73,39 @@ public class User extends IdEntity {
 	
 	private Set<Role> roles=new HashSet<Role>();
 	
+	private Set<Permission> permissions=new HashSet<Permission>();
+	
 	private User manager;
 	
 	private Set<Device> devices = new HashSet<Device>();
 	
 	private IM im;
+	
+	public boolean isAudit() {
+		return audit;
+	}
+
+	public void setAudit(boolean audit) {
+		this.audit = audit;
+	}
+
+	@JsonIgnore
+	public boolean isEnableIM() {
+		return enableIM;
+	}
+
+	public void setEnableIM(boolean enableIM) {
+		this.enableIM = enableIM;
+	}
+
+	@Transient
+	public Set<Permission> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(Set<Permission> permissions) {
+		this.permissions = permissions;
+	}
 
 	@OneToOne
 	@JoinColumn(name = "IMId")
@@ -136,7 +168,6 @@ public class User extends IdEntity {
 		this.category = category;
 	}
 
-	@JsonIgnore
 	@Column(unique=true, nullable=false)
 	public String getCode() {
 		return code;
@@ -308,6 +339,8 @@ public class User extends IdEntity {
 //			return getSchool(unit.getParent());
 //		}
 //	}
+	
+	@JsonIgnore
     @ManyToMany(
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             targetEntity = Role.class,

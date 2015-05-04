@@ -33,6 +33,18 @@ public class Square {
 	private Unit unit;
 	private User user;
 	
+	public Square() {
+		super();
+	}
+
+	public Square(Long unitId, Long userId, String type, String information) {
+		super();
+		this.unitId = unitId;
+		this.userId = userId;
+		this.type = type;
+		this.information = information;
+	}
+
 	@ManyToOne
 	@JoinColumn(name="userId",insertable = false, updatable = false)
 	public User getUser() {
@@ -71,10 +83,6 @@ public class Square {
 		this.unitId = unitId;
 	}
 	
-	@Transient
-	public String getName() {
-		return unit.getName()+type;
-	}
 	@ManyToOne
 	@JoinColumn(name="unitId",insertable = false, updatable = false)
 	public Unit getUnit() {
@@ -133,6 +141,7 @@ public class Square {
 		this.deleteTime = deleteTime;
 	}
 
+	@Column(nullable=false)
 	public String getType() {
 		return type;
 	}
