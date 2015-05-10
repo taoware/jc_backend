@@ -1,5 +1,10 @@
 package com.irengine.campus.cas.extension.service;
 
+import http.Url;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import javax.net.ssl.HostnameVerifier;
@@ -20,16 +25,62 @@ public class IMService {
 	@Autowired
 	IMRepository imRepository;
 	
-	/**注册环信*/
+	/**取得token
+	 * @throws Exception */
+	public String getToken() throws Exception{
+		String path="https://a1.easemob.com/gxcm/jycs/token";
+		String json="{\"grant_type\": \"client_credentials\",\"client_id\":\"YXA65PuJ4OPqEeSEbUF2XJP4QQ\",\"client_secret\":\"YXA6l0wPCJtBbPcBnGX1F5yRtUau7OU\"}";
+		String msg=sendPost(json, path, "", "");
+		String msg1=msg.substring(msg.indexOf("access_token")+"access_token\":\"".length(), msg.indexOf("\",\"expires_in"));
+		return msg1;
+	}
+
+	/** 注册环信 */
 	public String create(String username, String password) {
-		IM im=new IM(username,password);
-		String url="https://a1.easemob.com/gxcm/jycs/users";
+		IM im = new IM(username, password);
+		String json = "{\"username\":\"" + username + "\",\"password\":\""
+				+ password + "\"}";
 		String msg;
 		try {
-			msg = sendPost(im, url);
+			msg = sendPost(json, Url.imUsers, "", "");
+			if (!"error".equals(msg)) {
+				imRepository.save(im);
+			}
 		} catch (Exception e) {
-			msg="环信服务器异常";
-			e.printStackTrace();
+			msg = "error";
+		}
+		return msg;
+	}
+
+	/** 在环信上创建群组 */
+	public String chatgroups(String groupname, String desc, boolean pub,
+			int maxusers, boolean approval, String owner, String members) {
+		String json = "";
+		if ("".equals(members) || members == null) {
+			json = "{\"groupname\":\"" + groupname + "\"," + "\"desc\":\""
+					+ desc + "\"," + "\"public\":" + pub + ","
+					+ "\"maxusers\":" + maxusers + "," + "\"approval\":"
+					+ approval + "," + "\"owner\":\"" + owner + "\"}";
+		} else {
+			json = "{\"groupname\":\"" + groupname + "\"," + "\"desc\":\""
+					+ desc + "\"," + "\"public\":" + pub + ","
+					+ "\"maxusers\":" + maxusers + "," + "\"approval\":"
+					+ approval + "," + "\"owner\":\"" + owner + "\","
+					+ "\"members\":" + members + "}";
+		}
+		String msg = "";
+		String token="";
+		try {
+			token = getToken();
+		} catch (Exception e1) {
+		}
+		String path = Url.imChatgroupsUrl;
+		String header1 = "Authorization";
+		String header2 = "Bearer " + token;
+		try {
+			msg = sendPost(json, path, header1, header2);
+		} catch (Exception e) {
+			msg = "error";
 		}
 		return msg;
 	}
@@ -74,13 +125,13 @@ public class IMService {
 				.getSocketFactory());
 	}
 
-	String sendPost(IM im, String path) throws Exception{
+	String sendPost(String json, String path, String header1, String header2)
+			throws Exception {
 		HostnameVerifier hv = new HostnameVerifier() {
 			public boolean verify(String urlHostName, SSLSession session) {
 				return true;
 			}
 		};
-		String json="{\"username\":\""+im.getUsername()+"\",\"password\":\""+im.getPassword()+"\"}";
 		byte[] data = json.getBytes();
 		trustAllHttpsCertificates();
 		HttpsURLConnection.setDefaultHostnameVerifier(hv);
@@ -92,7 +143,9 @@ public class IMService {
 		conn.setReadTimeout(20 * 1000);// 设置读取超时时间为20秒
 		// 使用 URL 连接进行输出，则将 DoOutput标志设置为 true
 		conn.setDoOutput(true);
-
+		if (!"".equals(header1)) {
+			conn.setRequestProperty(header1, header2);
+		}
 		conn.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
 		// conn.setRequestProperty("Content-Encoding","gzip");
 		conn.setRequestProperty("Content-Length", String.valueOf(data.length));
@@ -102,17 +155,25 @@ public class IMService {
 		String msg = "";// 保存调用http服务后的响应信息
 		// 如果请求响应码是200，则表示成功
 		if (conn.getResponseCode() == 200) {
-			msg="环信注册成功";
-			imRepository.save(im);
+			/*得到返回数据*/
+	        InputStream in = conn.getInputStream();
+	        BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));
+	        String valueString = null;
+	        StringBuffer str = new StringBuffer();
+	        while ((valueString=read.readLine())!=null){
+	                str.append(valueString);
+	        }
+	        in.close();
+			msg = "success"+str;
 		} else {
-			msg = "环信注册失败";
-	}
+			msg = "error";
+		}
 		conn.disconnect();// 断开连接
 		return msg;
 	}
 
 	public IM findByUsername(String username) {
-		IM im=imRepository.findByUsername(username);
+		IM im = imRepository.findByUsername(username);
 		return im;
 	}
 

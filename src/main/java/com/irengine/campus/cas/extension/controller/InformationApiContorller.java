@@ -1,25 +1,36 @@
 package com.irengine.campus.cas.extension.controller;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.irengine.campus.cas.extension.domain.Information;
 import com.irengine.campus.cas.extension.domain.Result;
+import com.irengine.campus.cas.extension.domain.UploadedFile;
+import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.service.InformationService;
+import com.irengine.campus.cas.extension.service.UserService;
 import com.irengine.campus.cas.extension.service.UtilityService;
 
 @RestController
@@ -29,149 +40,173 @@ public class InformationApiContorller {
 	private InformationService informationService;
 	@Autowired
 	private UtilityService utilityService;
-	
-//	/**根据id查找所属文件*/
-//    @RequestMapping(value="/findFile",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-//    @ResponseBody
-//    public ResponseEntity<?> findFileById(@RequestParam("id") Long id){
-//    	List<UploadedFile> files=utilityService.findByEntityTypeAndEntityId("news",id);
-//    	return new ResponseEntity<>(files,HttpStatus.OK);
-//    }
-//    /**轮播接口,返回图片*/
-//    @RequestMapping(value="/slideshow",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-//    @ResponseBody
-//    public ResponseEntity<?> slideShow(@RequestParam("num") int num){
-//    	String type="slideshow";
-//    	List<Information> list=informationService.findByType(type);//按id顺序排列
-//    	List<Information> resList=new ArrayList<Information>();
-//    	if(num>=list.size()){
-//    		resList=list;
-//    	}else{
-//    		for(int i=0;i<num;i++){
-//    			resList.add(list.get(list.size()-(1+i)));
-//    		}
-//    	}
-//    	return new ResponseEntity<>(resList,HttpStatus.OK);
-//    }
-//    
-//    /**列表接口,返回图片*/
-//    @RequestMapping(value="/listshow",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-//    @ResponseBody
-//    public ResponseEntity<?> listShow(@RequestParam("num") int num){
-//    	String type="listshow";
-//    	List<Information> list=informationService.findByType(type);//按id顺序排列
-//    	List<Information> resList=new ArrayList<Information>();
-//    	if(num>=list.size()){
-//    		resList=list;
-//    	}else{
-//    		for(int i=0;i<num;i++){
-//    			resList.add(list.get(list.size()-(1+i)));
-//    		}
-//    	}
-//    	return new ResponseEntity<>(resList,HttpStatus.OK);
-//    }
-    
-//	/**列出所有资讯/查询轮播图/列表图*/
-//    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-//    @ResponseBody
-//    public ResponseEntity<?> list(){
-//    	
-//    	List<Information> informations=informationService.list();
-//    	return new ResponseEntity<>(informations,HttpStatus.OK);
-//    }
-    
-	/**列出所有资讯/查询轮播图/列表图*/
-	/*@RequestParam(required=false)当他为false 时  使用这个注解可以不传这个参数  true时必须传*/
-  @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseBody
-  public ResponseEntity<?> listByType(@RequestParam(value="type", required=false, defaultValue="") String type ){
-//	  Map<String,Object> map=new HashMap<String, Object>();
-  	if(type==null||"".equals(type)){
-  	  	List<Information> informations=informationService.list();
-  	  	
-//  	  	map.put("Results", informations);
-//  	  	map.put("msg", "ok");
-  	  	return new ResponseEntity<>(new Result<Information>("ok", informations),HttpStatus.OK);
-  	}else{
-  		List<Information> informations=informationService.findByType(type);
-//  	  	map.put("Results", list);
-//  	  	map.put("msg", "ok");
-  		return new ResponseEntity<>(new Result<Information>("ok",informations),HttpStatus.OK);
-  	}
+	@Autowired
+	private UserService userService;
 
-  }
-    
-    /**新建一条资讯*/
-    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<?> create(@RequestBody Information information){
-    	informationService.create(information);
-    	return new ResponseEntity<>(new Result<Information>("ok",null),HttpStatus.OK);
-    }
-    
-    /**根据时间列出资讯*/
-    @RequestMapping(value = "/lastUpdated", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<?> list(@RequestParam("queryTime") String queryTimeS){
-//    	Map<String,Object> map=new HashMap<String, Object>();
-    	SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-    	Date queryTime;
-		try {
-			queryTime = sdf.parse(queryTimeS);
-		} catch (ParseException e) {
-			
-//			map.put("msg", "时间格式错误.");
-			return new ResponseEntity<>(new Result<Information>("时间格式错误",null),HttpStatus.BAD_REQUEST);
+	@RequestMapping(value="/{id}/send")
+	@ResponseBody
+	public void sendRedirect(@PathVariable("id") Long id,HttpServletResponse response) throws ServletException, IOException{
+		Information information=informationService.findById(id);
+		Date createTime1=information.getCreateTime();
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+		String createTime=sdf.format(createTime1);
+		String address=information.getAddress();
+		String content=information.getContent();
+		String summary=information.getSummary();
+		String title=information.getTitle();
+		String photoUrl="";
+		String photoDescription="";
+		if(information.getPhoto()!=null){
+			photoUrl=information.getPhoto().getUrl();
+			photoDescription=information.getPhoto().getPhotoDescription();
 		}
-    	List<Information> informations=informationService.getLastUpdated(queryTime);
-//    	map.put("Results", informations);
-//    	map.put("msg", "ok");
-    	return new ResponseEntity<>(new Result<Information>("ok",informations),HttpStatus.OK);
-    }
-    
-    /**删除资讯*/
-    @RequestMapping(value = "/delete", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<?> delete(@RequestParam("id") Long id){
-    	informationService.delete(id);
-    	return new ResponseEntity<>(new Result<Information>("ok",null),HttpStatus.OK);
-    }
-    /**修改资讯*/
-    @RequestMapping(value="/update",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<?> update(@RequestBody Information information){
-    	informationService.update(information);
-    	return new ResponseEntity<>(new Result<Information>("ok",null),HttpStatus.OK);
-    }
-    
-    /**根据userId查找资讯*/
-    @RequestMapping(value="/userId",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<?> findByUserId(@RequestParam("userId") Long userId){
-//    	Map<String,Object> map=new HashMap<String, Object>();
-    	List<Information> informations=informationService.findByUserId(userId);
-//    	map.put("Results", list);
-//    	map.put("msg", "ok");
-    	return new ResponseEntity<>(new Result<Information>("ok",informations),HttpStatus.OK);
-    }
-    /**根据id查找资讯*/
-    @RequestMapping(value="/id",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<?> findById(@RequestParam("id") Long id){
-//    	Map<String,Object> map=new HashMap<String, Object>();
-//    	map.put("Results", informationService.findById(id));
-//    	map.put("msg", "ok");
-    	List<Information> informations=new ArrayList<Information>();
-    	informations.add(informationService.findById(id));
-    	return new ResponseEntity<>(new Result<Information>("ok",informations),HttpStatus.OK);
-    }
+		String url="http://vps1.taoware.com:8080/jc/html5/msg_page/msg.html?address="+address+"&content="
+				+content+"&summary="+summary+"&title="+title+"&photoUrl="
+				+photoUrl+"&createTime="+createTime+"&photoDescription="+photoDescription;
+		
+		String str = new String(url.getBytes("utf-8"),"ISO-8859-1");
+		response.sendRedirect(str);
+	}
+	
+	/** 列出所有资讯,按咨询类型列出资讯,根据时间查询资讯,根据id查询资讯 */
+	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> listByType(
+			@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "queryTime", required = false) String queryTimeS,
+			@RequestParam("userId") long userId,
+			@RequestParam(value = "id", required = false) Long id) {
+		List<Information> informations = new ArrayList<Information>();
+		List<Long> permissionIds = userService
+				.findPermissionIdsByUserId(userId);
+		if (permissionIds.indexOf(6L) == -1) {
+			return new ResponseEntity<>(new Result<Information>("没有权限查看资讯",
+					informations), HttpStatus.BAD_REQUEST);
+		} else {
+			if (type != null) {
+				/* 按类型搜索 */
+				informations = informationService.findByType(type);
+			} else if (queryTimeS != null) {
+				/* 按时间搜索 */
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				Date queryTime;
+				try {
+					queryTime = sdf.parse(queryTimeS);
+				} catch (ParseException e) {
+					return new ResponseEntity<>(new Result<Information>(
+							"时间格式错误", informations), HttpStatus.BAD_REQUEST);
+				}
+				informations = informationService.getLastUpdated(queryTime);
+			} else if (id != null) {
+				/* 按id搜索 */
+				informations.add(informationService.findById(id));
+			} else {
+				/* 搜索全部 */
+				informations = informationService.list();
+			}
+			return new ResponseEntity<>(new Result<Information>("ok",
+					informations), HttpStatus.OK);
+		}
+	}
+
+	/** 新建一条资讯 */
+	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> create(@RequestParam("summary") String summary1,
+			@RequestParam("title") String title1,
+			@RequestParam("address") String address1,
+			@RequestParam("content") String content1,
+			@RequestParam("type") String type1,
+			@RequestParam("userId") long userId,
+			@RequestParam("photoDescription") String photoDescription,
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			HttpServletRequest request) {
+		String summary = "";
+		String title = "";
+		String address = "";
+		String content = "";
+		String type = "";
+		/* 解决乱码问题 */
+		try {
+			summary = new String(summary1.getBytes("ISO-8859-1"), "utf-8");
+			title = new String(title1.getBytes("ISO-8859-1"), "utf-8");
+			address = new String(address1.getBytes("ISO-8859-1"), "utf-8");
+			content = new String(content1.getBytes("ISO-8859-1"), "utf-8");
+			type = new String(type1.getBytes("ISO-8859-1"), "utf-8");
+		} catch (UnsupportedEncodingException e1) {
+			return new ResponseEntity<>(new Result<Information>("error", null),
+					HttpStatus.BAD_REQUEST);
+		}
+		/* 权限管理 */
+		List<Long> permissionIds = userService
+				.findPermissionIdsByUserId(userId);
+		if (permissionIds.indexOf(5L) == -1) {
+			return new ResponseEntity<>(new Result<Information>("没有权限新建资讯",
+					null), HttpStatus.OK);
+		} else {
+			if (!type.equals("listshow") && !type.equals("slideshow")) {
+				return new ResponseEntity<>(new Result<Information>(
+						"type must be 'listshow' or 'slideshow'!", null),
+						HttpStatus.BAD_REQUEST);
+			} else {
+				Information information = new Information(summary, title,
+						address, content, userId, type);
+				informationService.create(information);
+				long maxId = informationService.findMaxId();
+				List<MultipartFile> files = new ArrayList<MultipartFile>();
+				if (!file.isEmpty()) {
+					files.add(file);
+					List<UploadedFile> files1 = null;
+					try {
+						files1 = utilityService.uploadFiles("news", maxId,
+								files, request,photoDescription);
+					} catch (IOException e) {
+						return new ResponseEntity<>(new Result<Information>(
+								"upload error", null),
+								HttpStatus.BAD_REQUEST);
+					}
+					if (files1.size() > 0) {
+						information.setPhoto(files1.get(0));
+						informationService.update(information);
+					}
+				}else{
+					return new ResponseEntity<>(new Result<User>("file is empty", null),
+							HttpStatus.BAD_REQUEST);
+				}
+				return new ResponseEntity<>(
+						new Result<Information>("ok", null), HttpStatus.OK);
+			}
+		}
+	}
+
+	/** 删除资讯 */
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+		informationService.delete(id);
+		return new ResponseEntity<>(new Result<Information>("ok", null),
+				HttpStatus.OK);
+	}
+
+	/** 修改资讯 */
+	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> update(@PathVariable("id") long id,
+			@RequestBody Information information) {
+		information.setId(id);
+		informationService.update(information);
+		return new ResponseEntity<>(new Result<Information>("ok", null),
+				HttpStatus.OK);
+	}
+
+	/** 根据userId查找资讯 */
+	@RequestMapping(value = "/user/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> findByUserId(@PathVariable("userId") Long userId) {
+		List<Information> informations = informationService
+				.findByUserId(userId);
+		return new ResponseEntity<>(
+				new Result<Information>("ok", informations), HttpStatus.OK);
+	}
+
 }
-
-
-
-
-
-
-
-
-

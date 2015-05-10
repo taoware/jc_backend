@@ -16,5 +16,7 @@ public interface StoreRepository  extends CrudRepository<Store, Long>{
 	List<Store> findByProvince(@Param("province") String province);
 	@Query("SELECT s FROM Store s WHERE s.province=:province AND s.type=:type ORDER BY id")
 	List<Store> findByProvinceAndType(@Param("province")String province, @Param("type") String type);
+	@Query("Select max(s.id) from Store s")
+	long findMaxId();
 	
 }

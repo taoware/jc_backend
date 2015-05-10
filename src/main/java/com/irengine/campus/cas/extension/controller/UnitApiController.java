@@ -42,6 +42,7 @@ public class UnitApiController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    /**查询最上级unit*/
     @RequestMapping(value = "/root", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> getRoot() {
@@ -51,6 +52,7 @@ public class UnitApiController {
         return new ResponseEntity<>(unit, HttpStatus.OK);
     }
     
+    /**添加子集unit*/
     @RequestMapping(value = "/{id}/children", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> addChild(@PathVariable("id") Long id, @RequestBody Unit child) {
@@ -60,6 +62,7 @@ public class UnitApiController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
+    /**删除子级unit*/
     @RequestMapping(value = "/{id}/children", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> removeChild(@PathVariable("id") Long id, @RequestBody Unit child) {
@@ -69,6 +72,7 @@ public class UnitApiController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
+    /**查询子级unit*/
     @RequestMapping(value = "/{id}/children", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> listChildren(@PathVariable("id") Long id) {
@@ -90,9 +94,7 @@ public class UnitApiController {
     @RequestMapping(value = "/{id}/user/{userId}", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<?> addUser(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
-
     	unitService.addUser(id, userId);
-    	
         return new ResponseEntity<>(HttpStatus.OK);
     }
     

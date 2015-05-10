@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 //组织节点
 @Entity
-@Table(name = "cas_units")
+@Table(name = "jc_units")
 public class Unit extends IdEntity {
 
 	private Set<Unit> children = new HashSet<Unit>();
@@ -47,7 +47,7 @@ public class Unit extends IdEntity {
 	}
 
 	//cascade:级联操作设置
-//	@JsonIgnore
+	@JsonIgnore
 	@OneToMany(targetEntity=Unit.class, cascade=CascadeType.ALL, mappedBy="parent")
 	public Set<Unit> getChildren() {
 		return children;

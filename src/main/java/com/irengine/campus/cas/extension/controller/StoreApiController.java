@@ -1,9 +1,13 @@
 package com.irengine.campus.cas.extension.controller;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,110 +20,136 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.irengine.campus.cas.extension.domain.Information;
 import com.irengine.campus.cas.extension.domain.Result;
 import com.irengine.campus.cas.extension.domain.Store;
-import com.irengine.campus.cas.extension.domain.StoresInProvince;
+import com.irengine.campus.cas.extension.domain.UploadedFile;
 import com.irengine.campus.cas.extension.service.StoreService;
+import com.irengine.campus.cas.extension.service.UtilityService;
 
 @RestController
 @RequestMapping(value = "/store")
 public class StoreApiController {
 	@Autowired
 	StoreService storeService;
-	/**添加门店(参数store)*/
-	@RequestMapping(method=RequestMethod.POST,consumes=MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public ResponseEntity<?> create(@RequestBody Store store){
-		storeService.create(store);
-		return new ResponseEntity<>(new Result<Store>("ok",null),HttpStatus.OK);
-	}
+	@Autowired
+	UtilityService utilityService;
 	
-	/**删除门店(参数:id)*/
-	@RequestMapping(value="/delete",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> delete(@RequestParam("id") Long id){
-		storeService.delete(id);
-		return new ResponseEntity<>(new Result<Store>("ok",null),HttpStatus.OK);
-	}
-	 
-	/**修改门店(参数:store)*/
-	@RequestMapping(value="/update",method=RequestMethod.POST,consumes=MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/{id}/send")
 	@ResponseBody
-	public ResponseEntity<?> update(@RequestBody Store store){
-		storeService.update(store);
-		return new ResponseEntity<>(new Result<Store>("ok",null),HttpStatus.OK);
-	}
-	
-	/**列出所有门店/查询轮播图/列表图*/
-	@RequestMapping(method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public ResponseEntity<?> findByType(@RequestParam(value="type",required=false,defaultValue="") String type){
-		List<Store> stores=new ArrayList<Store>();
-		if(type!=null&&!"".equals(type)){
-			stores=storeService.findByType(type);
-		}else{
-			stores=storeService.findAll();
+	public void sendRedirect(@PathVariable("id") Long id,HttpServletResponse response) throws ServletException, IOException{
+		Store store=storeService.findById(id);
+		String storeName=store.getStoreName();
+		String address=store.getAddress();
+		String summary=store.getSummary();
+		String phone=store.getPhone();
+		String introduction=store.getIntroduction();
+		String photoUrl="";
+		if(store.getPhoto()!=null){
+			photoUrl=store.getPhoto().getUrl();
 		}
-		return new ResponseEntity<>(new Result<Store>("ok",stores),HttpStatus.OK);
+		String url="http://vps1.taoware.com:8080/jc/html5/shop_page/shop.html?storeName="+storeName+
+				"&address="+address+"&summary="+summary+"&phone="+phone+"&introduction="
+				+introduction+"&photoUrl="+photoUrl;
+		System.out.println(url);
+		String str = new String(url.getBytes("utf-8"),"ISO-8859-1");
+		response.sendRedirect(str);
 	}
 	
-//	/**列出所有资讯/查询轮播图/列表图*/(按省份排列)
-//	@RequestMapping(method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
-//	@ResponseBody
-//	public ResponseEntity<?> findByType(@RequestParam(value="type", required=false, defaultValue="") String type){
-//		List<Store> stores=null;
-//		if(type!=null&&!"".equals(type)){
-//			stores=storeService.findByType(type);
-//		}else{
-//			stores=storeService.findAll();
-//		}
-//		Result<StoresInProvince> result=new Result<StoresInProvince>();
-//		List<StoresInProvince> sips=new ArrayList<StoresInProvince>();
-//		
-//		List<String> provinces=new ArrayList<String>();
-//		for(Store store:stores){
-//			String province=store.getProvince();
-//			if(provinces.indexOf(province)==-1){
-//				provinces.add(province);
-//			}
-//		}
-//		for(String province:provinces){
-//			List<Store> storesP=null;
-//			if(type!=null&&!"".equals(type)){
-//				storesP=storeService.findByProvinceAndType(province,type);
-//			}else{
-//				storesP=storeService.findByProvince(province);
-//			}
-//			StoresInProvince sip=new StoresInProvince(province,storesP);
-//			sips.add(sip);
-//		}
-//		result.setMsg("ok");
-//		result.setResults(sips);
-//		return new ResponseEntity<>(result,HttpStatus.OK);
-//	}
-	
-	/**根据id查找门店*/
-	@RequestMapping(value="/id/{id}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
+	/** 添加门店(参数store) */
+	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> findById(@PathVariable("id") long id){
-//		Map<String,Object> map=new HashMap<String, Object>();
-//		map.put("Results", storeService.findById(id));
-//		map.put("msg", "ok");
-		List<Store> stores=new ArrayList<Store>();
-		stores.add(storeService.findById(id));
-		return new ResponseEntity<>(new Result<Store>("ok",stores),HttpStatus.OK);
+	public ResponseEntity<?> create(	@RequestParam("storeName") String storeName1,
+			@RequestParam("summary") String summary1,
+			@RequestParam("address") String address1,
+			@RequestParam("province") String province1,
+			@RequestParam("phone") String phone1,
+			@RequestParam("introduction") String introduction1,
+			@RequestParam("type") String type1,
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			HttpServletRequest request) {
+		String storeName="";
+		String summary="";
+		String address="";
+		String province="";
+		String phone="";
+		String introduction="";
+		String type="";
+		try {
+			storeName=new String(storeName1.getBytes("ISO-8859-1"), "utf-8");
+			summary=new String(summary1.getBytes("ISO-8859-1"), "utf-8");
+			address=new String(address1.getBytes("ISO-8859-1"), "utf-8");
+			province=new String(province1.getBytes("ISO-8859-1"), "utf-8");
+			phone=new String(phone1.getBytes("ISO-8859-1"), "utf-8");
+			introduction=new String(introduction1.getBytes("ISO-8859-1"), "utf-8");
+			type=new String(type1.getBytes("ISO-8859-1"), "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			return new ResponseEntity<>(new Result<Information>("error", null),
+					HttpStatus.BAD_REQUEST);
+		}
+		Store store=new Store(storeName, summary, address, province, phone, introduction, type);
+		storeService.create(store);
+		long maxId = storeService.findMaxId();
+		if (file != null) {
+			List<MultipartFile> files = new ArrayList<MultipartFile>();
+			files.add(file);
+			List<UploadedFile> files1 = null;
+			try {
+				files1 = utilityService.uploadFiles("store", maxId,
+						files, request,"");
+			} catch (IOException e) {
+				return new ResponseEntity<>(new Result<Information>(
+						"upload file error", null),
+						HttpStatus.BAD_REQUEST);
+			}
+			if (files1.size() > 0) {
+				store.setPhoto(files1.get(0));
+				storeService.update(store);
+			}
+		}
+		return new ResponseEntity<>(new Result<Store>("ok", null),
+				HttpStatus.OK);
 	}
-	/**根据province查找对应门店信息*/
-	@RequestMapping(value="/province",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
+
+	/** 删除门店(参数:id) */
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+		storeService.delete(id);
+		return new ResponseEntity<>(new Result<Store>("ok", null),
+				HttpStatus.OK);
+	}
+
+	/** 修改门店(参数:store) */
+	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> findByProvince(@RequestParam("province") String province){
-		List<Store> stores=storeService.findByProvince(province);
-		return new ResponseEntity<>(new Result<Store>("ok",stores),HttpStatus.OK);
+	public ResponseEntity<?> update(@PathVariable("id") Long id,@RequestBody Store store) {
+		store.setId(id);
+		storeService.update(store);
+		return new ResponseEntity<>(new Result<Store>("ok", null),
+				HttpStatus.OK);
 	}
+
+	/** 列出所有门店,按门店类型查询门店,根据id查找门店,根据省份查找门店 */
+	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> findByType(
+			@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "id", required = false) Long id,
+			@RequestParam(value = "province", required = false) String province) {
+		List<Store> stores = new ArrayList<Store>();
+		if (type != null && !"".equals(type)) {
+			stores = storeService.findByType(type);
+		}else if(id != null && !"".equals(id)){
+			stores.add(storeService.findById(id));
+		}else if(province != null && !"".equals(province)){
+			stores = storeService.findByProvince(province);
+		} else {
+			stores = storeService.findAll();
+		}
+		return new ResponseEntity<>(new Result<Store>("ok", stores),
+				HttpStatus.OK);
+	}
+
 }
-
-
-
-
-
-

@@ -105,4 +105,10 @@ public class UnitService {
 	// TODO: not implemented
 	public void removeUser(Long unitId, Long userId) {
 	}
+	
+	public Unit findById(Long id){
+		Unit unit=unitRepository.findOne(id);
+		return unit;
+	}
+	
 }

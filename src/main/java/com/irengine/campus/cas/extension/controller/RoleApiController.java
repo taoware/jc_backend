@@ -54,7 +54,7 @@ public class RoleApiController {
 	}
 	
 	/**删除角色*/
-	@RequestMapping(value="/delete/{id}",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/{id}",method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> delete(@PathVariable("id") long id){
 		roleService.delete(id);
@@ -62,9 +62,10 @@ public class RoleApiController {
 	}
 	
 	/**修改角色*/
-	@RequestMapping(value="/update",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/{id}",method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> update(@RequestParam("pIds") String pIds,@RequestBody Role role){
+	public ResponseEntity<?> update(@PathVariable("id") long id,@RequestParam("pIds") String pIds,@RequestBody Role role){
+		role.setId(id);
 		roleService.save(role);
 		Role role1=roleService.findByName(role.getRole());
 		String[] pId=pIds.split(",");

@@ -10,10 +10,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 //Device:设备?
 @Entity
-@Table(name = "cas_devices")
+@Table(name = "jc_devices")
 public class Device extends IdEntity {
 
-	private String code;//
+	private String code;
 	
 	private String machineId;//注册码?
 	

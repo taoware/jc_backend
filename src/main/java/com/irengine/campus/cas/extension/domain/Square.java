@@ -5,10 +5,9 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -19,12 +18,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /** 广场实体类 */
 @Entity
-@Table(name = "cas_square")
-public class Square {
-	private Long id;// squareId
-	private Long unitId;//unitId
-	private Long userId;//userId(手动导入)
-	private String type;//广场类型:员工,联采,供应
+@Table(name = "jc_square")
+public class Square extends IdEntity {
+	private String type;// 广场类型:员工,联采,供应
 	private String information;// 信息
 	private Date createTime;// 创建时间
 	private Date updateTime;// 修改时间
@@ -32,9 +28,21 @@ public class Square {
 	private Set<UploadedFile> photos;// 对应的图片(多张)
 	private Unit unit;
 	private User user;
-	
+
+	public Square() {
+		super();
+	}
+
+	public Square(String type, String information, Unit unit, User user) {
+		super();
+		this.type = type;
+		this.information = information;
+		this.unit = unit;
+		this.user = user;
+	}
+
 	@ManyToOne
-	@JoinColumn(name="userId",insertable = false, updatable = false)
+	@JoinColumn(name = "userId")
 	public User getUser() {
 		return user;
 	}
@@ -43,40 +51,8 @@ public class Square {
 		this.user = user;
 	}
 
-	@Id
-	@GeneratedValue
-	public Long getId() {
-		return id;
-	}
-	
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
-	@JsonIgnore
-	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	@JsonIgnore
-	public Long getUnitId() {
-		return unitId;
-	}
-
-	public void setUnitId(Long unitId) {
-		this.unitId = unitId;
-	}
-	
-	@Transient
-	public String getName() {
-		return unit.getName()+type;
-	}
 	@ManyToOne
-	@JoinColumn(name="unitId",insertable = false, updatable = false)
+	@JoinColumn(name = "unitId")
 	public Unit getUnit() {
 		return unit;
 	}
@@ -85,7 +61,8 @@ public class Square {
 		this.unit = unit;
 	}
 
-	@Transient
+	@OneToMany
+	@JoinColumn(name = "squareId")
 	public Set<UploadedFile> getPhotos() {
 		return photos;
 	}
@@ -133,6 +110,7 @@ public class Square {
 		this.deleteTime = deleteTime;
 	}
 
+	@Column(nullable = false)
 	public String getType() {
 		return type;
 	}
@@ -141,4 +119,23 @@ public class Square {
 		this.type = type;
 	}
 
+	@Transient
+	public Long getUserId(){
+		return user.getId();
+	}
+	
+	@Transient
+	public Long getUnitId(){
+		return unit.getId();
+	}
+	
+	@Transient
+	public String getSquareName(){
+		if(user!=null&&unit!=null){
+			return unit.getName()+user.getPosition();
+		}else{
+			return "";
+		}
+	}
+	
 }
