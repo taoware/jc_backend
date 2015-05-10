@@ -104,6 +104,27 @@ public class UserApiController {
 		return new ResponseEntity<>(new Result<User>("ok", null), HttpStatus.OK);
 	}
 
+	/**输入手机号修改密码*/
+	@RequestMapping(value = "/forgetPass", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> forgetPasswordByMobile(
+			@RequestParam("mobile") String mobile, @RequestBody Password pw) {
+		User user=userService.findByMobile(mobile);
+		if(user!=null){
+			String msg = userService.updatePassword(pw.getPassword(), user.getId());
+			if ("success".equals(msg)) {
+				return new ResponseEntity<>(new Result<User>("ok", null),
+						HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(new Result<User>("error", null),
+						HttpStatus.OK);
+			}
+		}else{
+			return new ResponseEntity<>(new Result<User>("can not find user", null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 	/** 忘记密码 */
 	@RequestMapping(value = "/{userId}/forgetPass", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
