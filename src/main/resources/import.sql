@@ -1,4 +1,5 @@
-insert into jc_im values(1,'123456a','18616949668a');
+insert into jc_im values(1,'123456a','test1');
+insert into jc_im values(2,'123456a','test2');
 insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, category) values(11, '上海教育集团', '上海教育集团', null, 1, 22, true, 'Group');
 insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, category) values(1, '七宝中学教育集团', '上海教育集团-七宝中学教育集团', 11, 2, 11, true, 'Group');
 insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, category) values(2, '上海市七宝中学', '七宝中学教育集团-上海市七宝中学', 1, 3, 4, true, 'School');
@@ -10,8 +11,8 @@ insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, c
 insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, category) values(8, '上海徐家汇xx高级中学', '上海徐汇教育集团-上海瑜伽会xx高级中学', 6, 15, 16, true, 'School');
 insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, category) values(9, '上海市徐家汇xx小学', '上海徐汇教育集团-上海市徐家汇xx小学', 6, 17, 18, true, 'School');
 insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, category) values(10, '上海市徐家汇xx中学', '上海徐汇教育集团-上海市徐家汇xx中学', 6, 19, 20, true, 'School');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes,imid)values(false,true,1, 'zhang','斯蒂芬','huang@gxcm.com','TRUE','女','18616949668','外部','9cbf8a4dcb8e30682b927f352d6559a0','店长','上海市-上海市-浦东新区','燕郊','篮球',1);
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,2, 'dj','乐福','eisof@gxcm.com','TRUE','男','12584125412','内部','9cbf8a4dcb8e30682b927f352d6559a0','店长','上海市-上海市-徐汇区','燕郊','羽毛球');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes,imid)values(false,true,1, 'zhang','斯蒂芬','huang@gxcm.com','TRUE','女','11111','外部','9cbf8a4dcb8e30682b927f352d6559a0','店长','上海市-上海市-浦东新区','燕郊','篮球',1);
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes,imid)values(false,true,2, 'dj','乐福','eisof@gxcm.com','TRUE','男','22222','内部','9cbf8a4dcb8e30682b927f352d6559a0','店长','上海市-上海市-徐汇区','燕郊','羽毛球',2);
 insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,3, 'hiphop','科比','4585465581@qq.com','TRUE','女','18965412365','外部','7374ce58be384f97fb15117dd99fba3c','店长','上海市-上海市-浦东新区','燕郊','棒球');
 insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,4, 'rnb','艾弗森','665848554@qq.com','TRUE','男','12345678912','内部','85862151eaed9bbc8b94373243e687cf','联采','上海市-上海市-浦东新区','燕郊','高尔夫');
 insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,5, 'king','霍华德','dsea@gxcm.com','TRUE','男','12345678952','外部','74a0c18637d1c7585a37b331c78d71a8','联采','上海市-上海市-松江区','燕郊','排球');
@@ -105,6 +106,9 @@ Insert into jc_ROLE_PERMISSION values(1,8);
 Insert into jc_ROLE_PERMISSION values(1,12);
 Insert into jc_ROLE_PERMISSION values(1,16);
 Insert into jc_ROLE_PERMISSION values(1,22);
+/*游客权限*/
+Insert into jc_ROLE_PERMISSION values(5,6);
+Insert into jc_ROLE_PERMISSION values(5,8);
 /*管理员权限*/
 Insert into jc_ROLE_PERMISSION values(2,1);
 Insert into jc_ROLE_PERMISSION values(2,2);

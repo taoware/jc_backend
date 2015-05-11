@@ -40,15 +40,15 @@ public class ICampusCasExtensionApplication {
 	// <constructor-arg value="-web,-webAllowOthers,-webPort,8082"/>
 	// </bean>
 	 /*上传时注视掉*/
-//	@Bean
-//	Server h2Server() {
-//		Server server = new Server();
-//		try {
-//			server.runTool("-tcp");
-//			server.runTool("-tcpAllowOthers");
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return server;
-//	}
+	@Bean
+	Server h2Server() {
+		Server server = new Server();
+		try {
+			server.runTool("-tcp");
+			server.runTool("-tcpAllowOthers");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return server;
+	}
 }

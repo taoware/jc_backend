@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -30,7 +32,7 @@ public class IMService {
 	public String getToken() throws Exception{
 		String path="https://a1.easemob.com/gxcm/jycs/token";
 		String json="{\"grant_type\": \"client_credentials\",\"client_id\":\"YXA65PuJ4OPqEeSEbUF2XJP4QQ\",\"client_secret\":\"YXA6l0wPCJtBbPcBnGX1F5yRtUau7OU\"}";
-		String msg=sendPost(json, path, "", "");
+		String msg=sendPost(json, path, "", "","POST");
 		String msg1=msg.substring(msg.indexOf("access_token")+"access_token\":\"".length(), msg.indexOf("\",\"expires_in"));
 		return msg1;
 	}
@@ -42,7 +44,7 @@ public class IMService {
 				+ password + "\"}";
 		String msg;
 		try {
-			msg = sendPost(json, Url.imUsers, "", "");
+			msg = sendPost(json, Url.imUsers, "", "","POST");
 			if (!"error".equals(msg)) {
 				imRepository.save(im);
 			}
@@ -78,7 +80,7 @@ public class IMService {
 		String header1 = "Authorization";
 		String header2 = "Bearer " + token;
 		try {
-			msg = sendPost(json, path, header1, header2);
+			msg = sendPost(json, path, header1, header2,"POST");
 		} catch (Exception e) {
 			msg = "error";
 		}
@@ -125,7 +127,7 @@ public class IMService {
 				.getSocketFactory());
 	}
 
-	String sendPost(String json, String path, String header1, String header2)
+	String sendPost(String json, String path, String header1, String header2,String requestMethod)
 			throws Exception {
 		HostnameVerifier hv = new HostnameVerifier() {
 			public boolean verify(String urlHostName, SSLSession session) {
@@ -138,7 +140,7 @@ public class IMService {
 		java.net.URL url = new java.net.URL(path);
 		java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url
 				.openConnection();
-		conn.setRequestMethod("POST");
+		conn.setRequestMethod(requestMethod);
 		conn.setConnectTimeout(5 * 1000);// 设置连接超时时间为5秒
 		conn.setReadTimeout(20 * 1000);// 设置读取超时时间为20秒
 		// 使用 URL 连接进行输出，则将 DoOutput标志设置为 true
@@ -147,11 +149,12 @@ public class IMService {
 			conn.setRequestProperty(header1, header2);
 		}
 		conn.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
-		// conn.setRequestProperty("Content-Encoding","gzip");
-		conn.setRequestProperty("Content-Length", String.valueOf(data.length));
-		OutputStream outStream = conn.getOutputStream();// 返回写入到此连接的输出流
-		outStream.write(data);
-		outStream.close();// 关闭流
+		if(!"GET".equals(requestMethod)){
+			conn.setRequestProperty("Content-Length", String.valueOf(data.length));
+			OutputStream outStream = conn.getOutputStream();// 返回写入到此连接的输出流
+			outStream.write(data);
+			outStream.close();// 关闭流
+		}
 		String msg = "";// 保存调用http服务后的响应信息
 		// 如果请求响应码是200，则表示成功
 		if (conn.getResponseCode() == 200) {
@@ -175,6 +178,64 @@ public class IMService {
 	public IM findByUsername(String username) {
 		IM im = imRepository.findByUsername(username);
 		return im;
+	}
+	
+	/**通过userId查找其对应的组,并且通过组向其发送消息*/
+	public void sendMessageToGroup(String message, String imUsername) {
+		try {
+			String token=getToken();
+			List<String> groups=findGroupByUserId(imUsername,token);
+			sendMessageToGroupByGroupIds(groups,message,token);
+		} catch (Exception e) {
+			System.out.println("error");
+		}
+	}
+
+	/**将message发送给组*/
+	private void sendMessageToGroupByGroupIds(List<String> groups,
+			String message,String token) {
+		if(groups.size()>0){
+			String target="[";
+			for(String groupId:groups){
+				target+="\""+groupId+"\",";
+			}
+			target=target.substring(0,target.length()-1)+"]";
+			String header1 = "Authorization";
+			String header2 = "Bearer " + token;
+			System.out.println(header2);
+			String path=Url.sendMessageUrl;
+			String json="{\"target_type\" : \"chatgroups\",\"target\" : "+target+
+					",\"msg\" : {\"type\" : \"txt\",\"msg\" : \""+message+"\"}}";
+			System.out.println(json);
+			try {
+				String msg=sendPost(json, path, header1, header2, "POST");
+				System.out.println(msg);
+			} catch (Exception e) {
+				System.out.println("error");
+			}
+		}
+	}
+
+	/**通过userId查找组*/
+	private List<String> findGroupByUserId(String imUsername,String token) {
+		List<String> result=new ArrayList<String>();
+		String header1 = "Authorization";
+		String header2 = "Bearer " + token;
+		String path=Url.getGroupsUrl+imUsername+"/joined_chatgroups";
+		try {
+			String msg=sendPost("", path, header1, header2,"GET");
+			if(!"error".equals(msg)){
+				String data=msg.substring(msg.indexOf("data"), msg.lastIndexOf("]"));
+				String[] groupsMsg=data.split("},");
+				for(String groupMsg:groupsMsg){
+					String groupId=groupMsg.substring(groupMsg.indexOf("groupid\" : \"")+"groupid\" : \"".length()+1, groupMsg.indexOf("\","));
+					result.add(groupId);
+				}
+			}
+		} catch (Exception e) {
+			
+		}
+		return result;
 	}
 
 }

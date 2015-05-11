@@ -137,13 +137,19 @@ public class StoreApiController {
 	public ResponseEntity<?> findByType(
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "id", required = false) Long id,
-			@RequestParam(value = "province", required = false) String province) {
+			@RequestParam(value = "province", required = false) String province1) {
 		List<Store> stores = new ArrayList<Store>();
 		if (type != null && !"".equals(type)) {
 			stores = storeService.findByType(type);
 		}else if(id != null && !"".equals(id)){
 			stores.add(storeService.findById(id));
-		}else if(province != null && !"".equals(province)){
+		}else if(province1 != null && !"".equals(province1)){
+			String province="";
+			try {
+				province = new String(province1.getBytes("ISO-8859-1"),"utf-8");
+			} catch (UnsupportedEncodingException e) {
+				
+			}
 			stores = storeService.findByProvince(province);
 		} else {
 			stores = storeService.findAll();
