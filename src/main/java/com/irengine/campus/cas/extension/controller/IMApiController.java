@@ -28,6 +28,7 @@ public class IMApiController {
 	@Autowired
 	UserService userService;
 	
+	
 	/**测试取token*/
 	@RequestMapping(value="/test",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody

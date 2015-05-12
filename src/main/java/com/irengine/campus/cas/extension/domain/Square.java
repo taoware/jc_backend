@@ -14,12 +14,11 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /** 广场实体类 */
 @Entity
 @Table(name = "jc_square")
-public class Square extends IdEntity {
+public class Square extends IdEntity implements Comparable<Square>{
 	private String type;// 广场类型:员工,联采,供应
 	private String information;// 信息
 	private Date createTime;// 创建时间
@@ -136,6 +135,12 @@ public class Square extends IdEntity {
 		}else{
 			return "";
 		}
+	}
+
+	@Override
+	public int compareTo(Square o) {
+	       Square square=(Square)o;
+	      return square.getId().compareTo(this.getId());
 	}
 	
 }

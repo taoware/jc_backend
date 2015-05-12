@@ -3,9 +3,10 @@ package com.irengine.campus.cas.extension.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -133,12 +134,14 @@ public class SquareApiController {
 		if(unitId!=null||"".equals(unitId)){
 			/*根据userId和unitId查询广场*/
 			squares=squareService.findByUserIdAndUnitId(userId,unitId);
+			Collections.sort(squares);
 		}else if(id!=null||"".equals(id)){
 			/*根据id查询广场*/
 			Square square = squareService.findById(id);
 			squares.add(square);
 		}else{
 			squares=squareService.findByUserIdAndPermissions(userId, permissionIds);
+			Collections.sort(squares);
 		}
 		return new ResponseEntity<>(new Result<Square>("ok", squares),
 				HttpStatus.OK);
@@ -168,6 +171,7 @@ public class SquareApiController {
 	@ResponseBody
 	public ResponseEntity<?> findByUserId(@PathVariable("userId") long userId) {
 		List<Square> squares = squareService.findByUserId(userId);
+		Collections.sort(squares);
 		return new ResponseEntity<>(new Result<Square>("ok", squares),
 				HttpStatus.OK);
 	}

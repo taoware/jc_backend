@@ -4,7 +4,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -15,7 +20,7 @@ import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.service.IMService;
 
 public class testCase {
-	
+
 	private String ProcessMobile(String mobile) {
 		String str = "";
 		if (mobile.length() > 5) {
@@ -30,37 +35,35 @@ public class testCase {
 
 	private String test07(String groupname, String desc, boolean pub,
 			int maxusers, boolean approval, String owner, String members) {
-		String json = "{\"groupname\":\""+groupname+"\","
-				+ "\"desc\":\""+desc+"\","
-				+ "\"public\":"+pub+","
-				+ "\"maxusers\":"+maxusers+","
-				+ "\"approval\":"+approval+","
-				+ "\"owner\":\""+owner+"\","
-				+ "\"members\":"+members+"}";
+		String json = "{\"groupname\":\"" + groupname + "\"," + "\"desc\":\""
+				+ desc + "\"," + "\"public\":" + pub + "," + "\"maxusers\":"
+				+ maxusers + "," + "\"approval\":" + approval + ","
+				+ "\"owner\":\"" + owner + "\"," + "\"members\":" + members
+				+ "}";
 		return json;
 	}
-	
+
 	@Test
-	public void test10(){
-		int a=11;
-		for(int i=0;i<(a>9?9:a);i++){
-			System.out.print(i+" ");
+	public void test10() {
+		int a = 11;
+		for (int i = 0; i < (a > 9 ? 9 : a); i++) {
+			System.out.print(i + " ");
 		}
 	}
-	
+
 	@Test
-	public void test09(){
-		String members="[";
-		List<String> users=new ArrayList<String>();
+	public void test09() {
+		String members = "[";
+		List<String> users = new ArrayList<String>();
 		users.add("king");
 		users.add("t.i.");
-		for(String user2:users){
-			members+="\""+user2+"\",";
+		for (String user2 : users) {
+			members += "\"" + user2 + "\",";
 		}
-		members=members.substring(0, members.length()-1)+"]";
+		members = members.substring(0, members.length() - 1) + "]";
 		System.out.println(members);
 	}
-	
+
 	@Test
 	public void test08() {
 		String msg = test07("测试群2", "测试群2简介", true, 200, true, "18616949668a",
@@ -160,5 +163,32 @@ public class testCase {
 		String str2 = "aaa";
 		String str = "{" + "\"" + str1 + "\":" + "\"" + str2 + "\"}";
 		System.out.println(str);
+	}
+
+	@Test
+	public void test20150512() {
+		List<TestSquare> squares = new ArrayList<TestSquare>();
+
+		squares.add(new TestSquare("上海", "aaa"));
+		squares.add(new TestSquare("江苏", "bbb"));
+		squares.add(new TestSquare("上海", "ccc"));
+		squares.add(new TestSquare("上海", "ddd"));
+		squares.add(new TestSquare("江苏", "eee"));
+
+		Map<String, List<TestSquare>> map = new HashMap<String, List<TestSquare>>();
+		Set<String> provinces = new HashSet<String>();
+		for (TestSquare square : squares) {
+			provinces.add(square.getProvince());
+		}
+		for (String province : provinces) {
+			List<TestSquare> squares1 = new ArrayList<TestSquare>();
+			for (TestSquare square : squares) {
+				if (province.equals(square.getProvince())) {
+					squares1.add(square);
+				}
+				map.put(province, squares1);
+			}
+		}
+		System.out.println(map);
 	}
 }
