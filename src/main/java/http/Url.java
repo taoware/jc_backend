@@ -12,4 +12,6 @@ public class Url {
 	public static final String getGroupsUrl="https://a1.easemob.com/gxcm/jycs/users/";
 	//给群发文本消息
 	public static final String sendMessageUrl="https://a1.easemob.com/gxcm/jycs/messages";
+	//删除环信用户
+	public static final String deleteIm="https://a1.easemob.com/gxcm/jycs/users/";
 }

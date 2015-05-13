@@ -83,8 +83,8 @@ public class UserApiController {
 				users.add(user);
 			}
 		} else if (mobile != null && !"".equals(mobile)) {
-			User user= userService.findByMobile(mobile);
-			if(user!=null){
+			User user = userService.findByMobile(mobile);
+			if (user != null) {
 				users.add(user);
 			}
 		} else {
@@ -104,14 +104,15 @@ public class UserApiController {
 		return new ResponseEntity<>(new Result<User>("ok", null), HttpStatus.OK);
 	}
 
-	/**输入手机号修改密码*/
+	/** 输入手机号修改密码 */
 	@RequestMapping(value = "/forgetPass", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> forgetPasswordByMobile(
 			@RequestParam("mobile") String mobile, @RequestBody Password pw) {
-		User user=userService.findByMobile(mobile);
-		if(user!=null){
-			String msg = userService.updatePassword(pw.getPassword(), user.getId());
+		User user = userService.findByMobile(mobile);
+		if (user != null) {
+			String msg = userService.updatePassword(pw.getPassword(),
+					user.getId());
 			if ("success".equals(msg)) {
 				return new ResponseEntity<>(new Result<User>("ok", null),
 						HttpStatus.OK);
@@ -119,12 +120,12 @@ public class UserApiController {
 				return new ResponseEntity<>(new Result<User>("error", null),
 						HttpStatus.OK);
 			}
-		}else{
-			return new ResponseEntity<>(new Result<User>("can not find user", null),
-					HttpStatus.BAD_REQUEST);
+		} else {
+			return new ResponseEntity<>(new Result<User>("can not find user",
+					null), HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 	/** 忘记密码 */
 	@RequestMapping(value = "/{userId}/forgetPass", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -145,33 +146,38 @@ public class UserApiController {
 	@ResponseBody
 	public ResponseEntity<?> modifyAvatar(@PathVariable("id") long id,
 			@RequestParam("file") MultipartFile file, HttpServletRequest request) {
-		User user=userService.findById(id);
+		User user = userService.findById(id);
 		List<MultipartFile> files = new ArrayList<MultipartFile>();
-		List<UploadedFile> files1=new ArrayList<UploadedFile>();
-		if(!file.isEmpty()){
+		List<UploadedFile> files1 = new ArrayList<UploadedFile>();
+		if (!file.isEmpty()) {
 			files.add(file);
 			try {
-				files1=utilityService.uploadFiles("user", id, files, request,"");
-				if(files1.size()>0){
+				files1 = utilityService.uploadFiles("user", id, files, request,
+						"");
+				if (files1.size() > 0) {
 					user.setAvatar(files1.get(0));
 					userService.update2(user);
 				}
 			} catch (IOException e) {
-				return new ResponseEntity<>(new Result<User>("upload error", null),
-						HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(new Result<User>("upload error",
+						null), HttpStatus.BAD_REQUEST);
 			}
-		}else{
-			return new ResponseEntity<>(new Result<User>("file is empty", null),
+		} else {
+			return new ResponseEntity<>(
+					new Result<User>("file is empty", null),
 					HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<>(new Result<User>("ok", null),
-				HttpStatus.OK);
+		return new ResponseEntity<>(new Result<User>("ok", null), HttpStatus.OK);
 	}
 
 	/** 注册用户 */
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> create(@RequestBody User user) {
+	public ResponseEntity<?> create(@RequestBody User user,
+			HttpServletRequest request) {
+		System.out.println(user);
+		String content = request.getContentType();
+		System.out.println(content);
 		if (user.getName().trim().trim() == null
 				|| "".equals(user.getName().trim())
 				|| user.getGender().trim() == null
@@ -203,8 +209,8 @@ public class UserApiController {
 			} else {
 				String IMMsg = imService.create(
 						ProcessMobile(user.getMobile()), "123456a");
-				if(!IMMsg.equals("error")){
-					IMMsg="success";
+				if (!IMMsg.equals("error")) {
+					IMMsg = "success";
 				}
 				IM im = null;
 				if ("success".equals(IMMsg)) {
@@ -304,17 +310,25 @@ public class UserApiController {
 	}
 
 	/** 删除用户 */
-	@RequestMapping(value = "/delete", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> delete(@RequestParam("id") Long id) {
-		userService.delete(id);
-		return new ResponseEntity<>(new Result<User>("ok", null), HttpStatus.OK);
+	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+		User user=userService.findById(id);
+		String msg=imService.deleteIm(user.getIm().getUsername());
+		if(!"error".equals(msg)){
+			userService.delete(id);
+			return new ResponseEntity<>(new Result<User>("ok", null), HttpStatus.OK);
+		}else{
+			return new ResponseEntity<>(new Result<User>("error", null), HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	/** 修改用户 */
-	@RequestMapping(value = "/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> update(@RequestBody User user) {
+	public ResponseEntity<?> update(@PathVariable("id") Long id,
+			@RequestBody User user) {
+		user.setId(id);
 		String mes = userService.update(user);
 		if ("success".equals(mes)) {
 			return new ResponseEntity<>(new Result<User>("修改成功", null),

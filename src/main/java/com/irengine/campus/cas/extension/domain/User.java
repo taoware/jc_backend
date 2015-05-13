@@ -162,7 +162,8 @@ public class User extends IdEntity {
 		return permissions1;
 	}
 
-	@OneToOne
+	
+	@OneToOne(cascade={CascadeType.ALL})
 	@JoinColumn(name = "IMId")
 	public IM getIm() {
 		return im;
@@ -445,4 +446,5 @@ public class User extends IdEntity {
 
 		return "";
 	}
+
 }

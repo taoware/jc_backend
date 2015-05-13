@@ -238,4 +238,20 @@ public class IMService {
 		return result;
 	}
 
+	/**根据环信用户名删除环信帐号*/
+	public String deleteIm(String username) {
+		String token;
+		String msg="error";
+		try {
+			token = getToken();
+			String path=Url.deleteIm+username;
+			String header1 = "Authorization";
+			String header2 = "Bearer " + token;
+			msg=sendPost("", path, header1, header2, "DELETE");
+		} catch (Exception e) {
+
+		}
+		return msg;
+	}
+
 }
