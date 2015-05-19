@@ -55,17 +55,23 @@ public class IMService {
 		String msg = "error";
 		IM im = new IM(username, password);
 		if (!imIsExist(username)) {
-			/* 环信账户不存在:新建环信用户 */
+			/* 环信账户不存在:新建环信用户,jc_im插入数据 */
 			String json = "{\"username\":\"" + username + "\",\"password\":\""
 					+ password + "\"}";
 			try {
 				msg = sendPost(json, Url.imUsers, "", "", "POST");
 				if (!"error".equals(msg)) {
-					imRepository.save(im);
+					List<IM> ims = findByUsername(username);
+					if (ims.size() > 0) {
+						/* jc_im表中存在该用户环信信息:不做操作 */
+					} else {
+						/* jc_im表中不存在该用户环信信息:插入一条im信息数据 */
+						imRepository.save(im);
+					}
 					msg = "success";
 				}
 			} catch (Exception e) {
-				msg = "error";
+				msg = "im already exist";
 			}
 		} else {
 			/* 环信用户存在:不新建,查看jc_im表中是否存在对应环信用户环信信息 */

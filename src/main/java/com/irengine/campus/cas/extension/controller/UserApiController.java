@@ -2,11 +2,8 @@ package com.irengine.campus.cas.extension.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -177,8 +174,11 @@ public class UserApiController {
 		return new ResponseEntity<>(new Result<User>("ok", null), HttpStatus.OK);
 	}
 
-	/** 注册用户 
-	 * @throws Exception */
+	/**
+	 * 注册用户
+	 * 
+	 * @throws Exception
+	 */
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> create(@RequestBody User user,
@@ -215,28 +215,20 @@ public class UserApiController {
 				return new ResponseEntity<>(new Result<User>("该手机已被注册", null),
 						HttpStatus.BAD_REQUEST);
 			} else {
-				String IMMsg = imService.create(
-						ProcessMobile(user.getMobile()), "123456a");
-				if (!IMMsg.equals("error")) {
-					IMMsg = "success";
-				}
+				imService.create(ProcessMobile(user.getMobile()), "123456a");
 				IM im = null;
-				if ("success".equals(IMMsg)) {
-					im = imService.findByUsername(ProcessMobile(user
-							.getMobile())).get(0);
-					user.setEnableIM(true);
-				} else {
-					user.setEnableIM(false);
-				}
+				im = imService.findByUsername(ProcessMobile(user.getMobile()))
+						.get(0);
+				user.setEnableIM(true);
 				user.setIm(im);
 				user.setAudit(false);
 				String mes = userService.create(user);
 				if ("success".equals(mes)) {
-					Role role=roleService.findByName("visitor");
+					Role role = roleService.findByName("visitor");
 					user.getRoles().add(role);
 					userService.update2(user);
-					return new ResponseEntity<>(new Result<User>(
-							"用户注册:success,环信注册:" + IMMsg, null), HttpStatus.OK);
+					return new ResponseEntity<>(
+							new Result<User>("用户注册成功", null), HttpStatus.OK);
 				} else {
 					return new ResponseEntity<>(new Result<User>(
 							"手机号或密码格式错误,注册失败", null), HttpStatus.BAD_REQUEST);
@@ -281,12 +273,16 @@ public class UserApiController {
 				HttpStatus.OK);
 	}
 
-	/** 登录功能 
-	 * @throws Exception */
+	/**
+	 * 登录功能
+	 * 
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> login(@RequestParam("mobile") String mobile,
-			@RequestParam("plainPassword") String plainPassword) throws Exception {
+			@RequestParam("plainPassword") String plainPassword)
+			throws Exception {
 		String str = userService.login(mobile, plainPassword);
 		if ("success".equals(str)) {
 			User user = userService.findByMobile(mobile);
@@ -294,13 +290,13 @@ public class UserApiController {
 			users.add(user);
 			/* 检测环信是否被注册上 */
 			String IMMsg = "";
-			if (!user.isEnableIM()) {
+			if (user.getIm()==null) {
 				IMMsg = imService.create(ProcessMobile(user.getMobile()),
 						"123456a");
 				IM im = null;
 				if ("success".equals(IMMsg)) {
-					im = imService.findByUsername(ProcessMobile(user
-							.getMobile())).get(0);
+					im = imService.findByUsername(
+							ProcessMobile(user.getMobile())).get(0);
 					user.setEnableIM(true);
 					user.setIm(im);
 					userService.update2(user);
@@ -324,16 +320,18 @@ public class UserApiController {
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
-		User user=userService.findById(id);
-		String msg="";
-		if(user.getIm()!=null){
-			msg=imService.deleteIm(user.getIm().getUsername());
+		User user = userService.findById(id);
+		String msg = "";
+		if (user.getIm() != null) {
+			msg = imService.deleteIm(user.getIm().getUsername());
 		}
-		if(!"error".equals(msg)){
+		if (!"error".equals(msg)) {
 			userService.delete(id);
-			return new ResponseEntity<>(new Result<User>("ok", null), HttpStatus.OK);
-		}else{
-			return new ResponseEntity<>(new Result<User>("error", null), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new Result<User>("ok", null),
+					HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(new Result<User>("error", null),
+					HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -393,7 +391,7 @@ public class UserApiController {
 		} else {
 			str = mobile;
 		}
-		return str+(int)(Math.random()*10000);
+		return str;
 	}
 
 }
