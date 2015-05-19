@@ -2,8 +2,11 @@ package com.irengine.campus.cas.extension.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,9 +27,11 @@ import com.irengine.campus.cas.extension.domain.Device;
 import com.irengine.campus.cas.extension.domain.IM;
 import com.irengine.campus.cas.extension.domain.Password;
 import com.irengine.campus.cas.extension.domain.Result;
+import com.irengine.campus.cas.extension.domain.Role;
 import com.irengine.campus.cas.extension.domain.UploadedFile;
 import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.service.IMService;
+import com.irengine.campus.cas.extension.service.RoleService;
 import com.irengine.campus.cas.extension.service.UserService;
 import com.irengine.campus.cas.extension.service.UtilityService;
 
@@ -40,6 +45,8 @@ public class UserApiController {
 	UtilityService utilityService;
 	@Autowired
 	IMService imService;
+	@Autowired
+	RoleService roleService;
 
 	/**
 	 * 查询所有user信息,通过环信用户名查找user信息,通过name查找user,通过imId查找user, 通过ids查找user,
@@ -170,11 +177,12 @@ public class UserApiController {
 		return new ResponseEntity<>(new Result<User>("ok", null), HttpStatus.OK);
 	}
 
-	/** 注册用户 */
+	/** 注册用户 
+	 * @throws Exception */
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> create(@RequestBody User user,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws Exception {
 		System.out.println(user);
 		String content = request.getContentType();
 		System.out.println(content);
@@ -215,7 +223,7 @@ public class UserApiController {
 				IM im = null;
 				if ("success".equals(IMMsg)) {
 					im = imService.findByUsername(ProcessMobile(user
-							.getMobile()));
+							.getMobile())).get(0);
 					user.setEnableIM(true);
 				} else {
 					user.setEnableIM(false);
@@ -224,6 +232,9 @@ public class UserApiController {
 				user.setAudit(false);
 				String mes = userService.create(user);
 				if ("success".equals(mes)) {
+					Role role=roleService.findByName("visitor");
+					user.getRoles().add(role);
+					userService.update2(user);
 					return new ResponseEntity<>(new Result<User>(
 							"用户注册:success,环信注册:" + IMMsg, null), HttpStatus.OK);
 				} else {
@@ -270,11 +281,12 @@ public class UserApiController {
 				HttpStatus.OK);
 	}
 
-	/** 登录功能 */
+	/** 登录功能 
+	 * @throws Exception */
 	@RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> login(@RequestParam("mobile") String mobile,
-			@RequestParam("plainPassword") String plainPassword) {
+			@RequestParam("plainPassword") String plainPassword) throws Exception {
 		String str = userService.login(mobile, plainPassword);
 		if ("success".equals(str)) {
 			User user = userService.findByMobile(mobile);
@@ -286,14 +298,13 @@ public class UserApiController {
 				IMMsg = imService.create(ProcessMobile(user.getMobile()),
 						"123456a");
 				IM im = null;
-				if ("环信注册成功".equals(IMMsg)) {
+				if ("success".equals(IMMsg)) {
 					im = imService.findByUsername(ProcessMobile(user
-							.getMobile()));
+							.getMobile())).get(0);
 					user.setEnableIM(true);
-				} else {
-					user.setEnableIM(false);
+					user.setIm(im);
+					userService.update2(user);
 				}
-				user.setIm(im);
 			}
 			return new ResponseEntity<>(
 					new Result<User>("登录成功." + IMMsg, users), HttpStatus.OK);
@@ -314,7 +325,10 @@ public class UserApiController {
 	@ResponseBody
 	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 		User user=userService.findById(id);
-		String msg=imService.deleteIm(user.getIm().getUsername());
+		String msg="";
+		if(user.getIm()!=null){
+			msg=imService.deleteIm(user.getIm().getUsername());
+		}
 		if(!"error".equals(msg)){
 			userService.delete(id);
 			return new ResponseEntity<>(new Result<User>("ok", null), HttpStatus.OK);
@@ -379,7 +393,7 @@ public class UserApiController {
 		} else {
 			str = mobile;
 		}
-		return str;
+		return str+(int)(Math.random()*10000);
 	}
 
 }

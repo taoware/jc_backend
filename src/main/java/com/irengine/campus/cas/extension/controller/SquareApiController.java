@@ -111,8 +111,15 @@ public class SquareApiController {
 			Square square = new Square(type1, information1, unitService.findById(unitId), userService.findById(userId));
 			squareService.create(square);
 			long entityId = squareService.getMaxId();
-			List<UploadedFile> uploadedFiles=utilityService.uploadFiles("square", entityId, files, request,"");
+			List<UploadedFile> uploadedFiles=new ArrayList<UploadedFile>();
 			List<Square> squares = new ArrayList<Square>();
+			try {
+					uploadedFiles=utilityService.uploadFiles("square", entityId, files, request,"");
+			} catch (Exception e) {
+				squareService.delete(entityId);
+				return new ResponseEntity<>(new Result<Square>("upload file error", squares),
+						HttpStatus.BAD_REQUEST);
+			}
 			Square square1 = squareService.findById(entityId);
 			square1.setPhotos(new HashSet(uploadedFiles));
 			squareService.update(square1);

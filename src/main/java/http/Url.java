@@ -14,4 +14,7 @@ public class Url {
 	public static final String sendMessageUrl="https://a1.easemob.com/gxcm/jycs/messages";
 	//删除环信用户
 	public static final String deleteIm="https://a1.easemob.com/gxcm/jycs/users/";
+	//根据环信用户名查找环信用户信息
+	///{org_name}/{app_name}/users/{username}
+	public static final String findImByUsername="https://a1.easemob.com/gxcm/jycs/users/";
 }

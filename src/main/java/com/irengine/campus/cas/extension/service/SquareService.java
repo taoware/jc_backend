@@ -94,21 +94,25 @@ public class SquareService {
 		List<Square> squares=new ArrayList<Square>();
 		User user=userService.findById(userId);
 		Set<Unit> units=user.getUnits();
-		//units1:最终返回的unit集合
-		Set<Unit> units1=new HashSet<Unit>();
-		for(Unit unit:units){
-			//查询该unit子集
-			List<Unit> units2=unitService.listChildren(unit.getId());
-			//把该unit也加入集合
-			units2.add(unit);
-			for(Unit unit1:units2){
-				units1.add(unit1);
+		if(units==null||units.size()<1){
+			return squares;
+		}else{
+			//units1:最终返回的unit集合
+			Set<Unit> units1=new HashSet<Unit>();
+			for(Unit unit:units){
+				//查询该unit子集
+				List<Unit> units2=unitService.listChildren(unit.getId());
+				//把该unit也加入集合
+				units2.add(unit);
+				for(Unit unit1:units2){
+					units1.add(unit1);
+				}
 			}
+			for(Unit unit:units1){
+				squares.addAll(findByUnitIdAndPermissionIds(unit.getId(),permissionIds));
+			}
+			return squares;
 		}
-		for(Unit unit:units1){
-			squares.addAll(findByUnitIdAndPermissionIds(unit.getId(),permissionIds));
-		}
-		return squares;
 	}
 
 	private List<Square> findByUnitIdAndPermissionIds(Long unitId,

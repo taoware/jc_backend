@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,6 +29,15 @@ public class IMApiController {
 	@Autowired
 	UserService userService;
 	
+	/**环信用户是否存在
+	 * @throws Exception */
+	///im/{username}
+	@RequestMapping(value="/{username}",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> findImByUsername(@PathVariable("username") String username) throws Exception{
+		boolean b=imService.imIsExist(username);
+		return new ResponseEntity<>(b,HttpStatus.OK);
+	}
 	
 	/**测试取token*/
 	@RequestMapping(value="/test",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
