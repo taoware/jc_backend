@@ -243,6 +243,7 @@ public class UserService {
 		return user;
 	}
 
+	/*根据环信username查找对应用户**/
 	public List<User> findByImUsernames(String imUsernames) {
 		String[] strs = imUsernames.split(",");
 		List<User> users=new ArrayList<User>();

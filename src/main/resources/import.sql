@@ -1,3 +1,6 @@
+/*添加本地环信组信息*/
+insert into jc_group values(1,'1431237006985467');
+insert into jc_group values(2,'1431237061381590');
 insert into jc_im values(1,'123456a','test1');
 insert into jc_im values(2,'123456a','test2');
 insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, category) values(11, '上海教育集团', '上海教育集团', null, 1, 22, true, 'Group');

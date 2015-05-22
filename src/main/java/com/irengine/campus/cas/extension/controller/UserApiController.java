@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,7 +52,7 @@ public class UserApiController {
 	 */
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> list(
+	public ResponseEntity<?> list(Model model,
 			@RequestParam(value = "imUsernames", required = false) String imUsernames,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "imIds", required = false) String imIds,
@@ -94,6 +95,7 @@ public class UserApiController {
 		} else {
 			users = userService.list();
 		}
+		model.addAttribute("users",users);
 		return new ResponseEntity<>(new Result<User>("ok", users),
 				HttpStatus.OK);
 	}
@@ -201,9 +203,7 @@ public class UserApiController {
 				|| user.getMobile().trim() == null
 				|| "".equals(user.getMobile().trim())
 				|| user.getPlainPassword().trim() == null
-				|| "".equals(user.getPlainPassword().trim())
-				|| user.getNotes().trim() == null
-				|| "".equals(user.getNotes().trim())) {
+				|| "".equals(user.getPlainPassword().trim())) {
 			return new ResponseEntity<>(new Result<User>("信息不能为空", null),
 					HttpStatus.BAD_REQUEST);
 		} else {
@@ -221,7 +221,7 @@ public class UserApiController {
 						.get(0);
 				user.setEnableIM(true);
 				user.setIm(im);
-				user.setAudit(false);
+				user.setAudit(true);
 				String mes = userService.create(user);
 				if ("success".equals(mes)) {
 					Role role = roleService.findByName("visitor");
@@ -234,7 +234,6 @@ public class UserApiController {
 							"手机号或密码格式错误,注册失败", null), HttpStatus.BAD_REQUEST);
 				}
 			}
-
 		}
 	}
 

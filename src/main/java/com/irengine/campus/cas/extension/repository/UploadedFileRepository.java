@@ -17,7 +17,7 @@ public interface UploadedFileRepository extends
 	UploadedFile findByFileId(@Param("id") long id);
 
 	@Query("SELECT u FROM UploadedFile u WHERE u.entityId=:id")
-	List<UploadedFile> findByEntityId(@Param("id") long id);
+	List<UploadedFile> findByEntityId(@Param("id") Long id);
 
 	@Query("SELECT u FROM UploadedFile u WHERE u.entityType=:entityType")
 	Set<UploadedFile> findByEntityType(@Param("entityType") String entityType);

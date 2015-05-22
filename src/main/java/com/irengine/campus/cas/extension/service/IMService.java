@@ -21,9 +21,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.TypeReference;
 import com.irengine.campus.cas.extension.controller.FileUploadController;
+import com.irengine.campus.cas.extension.domain.Data;
 import com.irengine.campus.cas.extension.domain.IM;
+import com.irengine.campus.cas.extension.domain.IMGroup2;
+import com.irengine.campus.cas.extension.domain.Member;
+import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.repository.IMRepository;
+import com.irengine.commons.JSONUtils;
 
 @Service
 @Transactional
@@ -31,6 +37,8 @@ public class IMService {
 
 	@Autowired
 	IMRepository imRepository;
+	@Autowired
+	UserService userService;
 
 	private static Logger logger = LoggerFactory
 			.getLogger(FileUploadController.class);
@@ -350,7 +358,6 @@ public class IMService {
 		
 		StringBuffer str = new StringBuffer();
 		code = "" + conn.getResponseCode();
-		responseBody = "" + str;
 		// 如果请求响应码是200，则表示成功
 		if (conn.getResponseCode() == 200) {
 			InputStream in = conn.getInputStream();
@@ -368,10 +375,55 @@ public class IMService {
 			logger.error("----------sendHttp error:" + str);
 		}
 		conn.disconnect();// 断开连接
+		responseBody = "" + str;
 		msgMap.put("code", code);
 		msgMap.put("msg", msg);
 		msgMap.put("responseBody", responseBody);
 		return msgMap;
 	}
 
+	public List<IMGroup2> findAllGroup(String groupIdsStr) {
+		/*发送请求查询环信上组的详细信息*/
+		String token="";
+		Map<String,String> mapMsg=new HashMap<String, String>();
+		if("".equals(groupIdsStr)){
+			return null;
+		}else{
+			try {
+				token = getToken();
+				String header1 = "Authorization";
+				String header2 = "Bearer " + token;
+				String path=Url.getGroupUrl2+groupIdsStr;
+				mapMsg=sendPost2("", path, header1, header2, "GET");
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+			/*将得到的responseBody信息注入到IMGroup类中*/
+			String responseBody=mapMsg.get("responseBody");
+			System.out.println(responseBody);
+			String groupsMsg=responseBody.substring(responseBody.indexOf("data")-1, responseBody.indexOf("timestamp")-4);
+			System.out.println(groupsMsg);
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			Data<IMGroup2> data=(Data) JSONUtils.parseObject("{"+groupsMsg+"}",new TypeReference<Data<IMGroup2>>(){});
+			List<IMGroup2> list = data.getData();
+			for(IMGroup2 group:list){
+				group.setName(group.getName().substring(6));
+				for(Member member:group.getAffiliations()){
+					/*给member对应user*/
+					if(member.getOwner()!=null){
+						/*判定为群主*/
+						User user=userService.findByImUsernames(member.getOwner()).get(0);
+						group.setOwner(user);
+					}else{
+						/*判定为成员*/
+						User user=userService.findByImUsernames(member.getMember()).get(0);
+						group.getMembers().add(user);
+					}
+				}
+			}
+			return list;
+		}
+	}
+	
 }

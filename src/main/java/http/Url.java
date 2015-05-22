@@ -17,4 +17,7 @@ public class Url {
 	//根据环信用户名查找环信用户信息
 	///{org_name}/{app_name}/users/{username}
 	public static final String findImByUsername="https://a1.easemob.com/gxcm/jycs/users/";
+	//根据环信组id查询组详细信息
+	///{org_name}/{app_name}/chatgroups/{group_id1},{group_id2}
+	public static final String getGroupUrl2="https://a1.easemob.com/gxcm/jycs/chatgroups/";
 }

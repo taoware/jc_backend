@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.irengine.campus.cas.extension.domain.IM;
 import com.irengine.campus.cas.extension.domain.IMGroup;
+import com.irengine.campus.cas.extension.domain.IMGroup2;
 import com.irengine.campus.cas.extension.domain.Result;
+import com.irengine.campus.cas.extension.domain.SimpleIMGroup;
 import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.service.IMService;
+import com.irengine.campus.cas.extension.service.SimpleIMGroupService;
 import com.irengine.campus.cas.extension.service.UserService;
 
 @RestController
@@ -28,6 +31,8 @@ public class IMApiController {
 	IMService imService;
 	@Autowired
 	UserService userService;
+	@Autowired
+	SimpleIMGroupService simpleIMGroupService;
 	
 	/**环信用户是否存在
 	 * @throws Exception */
@@ -53,9 +58,9 @@ public class IMApiController {
 	}
 	
 	/**环信建群组*/
-	@RequestMapping(value="/chatgroups",method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/chatgroups",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> chatgroups(@RequestBody IMGroup imGroup){
+	public ResponseEntity<?> createChatgroups(@RequestBody IMGroup imGroup){
 		String members="";
 		User user=userService.findById(imGroup.getUserId());
 		if("".equals(imGroup.getMemberIds())||imGroup.getMemberIds()==null){
@@ -79,6 +84,28 @@ public class IMApiController {
 			return new ResponseEntity<>(new Result<IM>("error",null),HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	/**查询所有组*/
+	///im/chatgroups,get请求
+	@RequestMapping(value="/chatgroups",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> getChatgroups(){
+		//得到本地数据库中的所有组信息
+		List<SimpleIMGroup> groups=simpleIMGroupService.findAll();
+		/*得到组id拼成的字符串:1410511142870,1408518613503*/
+		String groupIdsStr="";
+		if(groups.size()>0){
+			for(SimpleIMGroup simpleImGroup:groups){
+				groupIdsStr+=simpleImGroup.getGroupId()+",";
+			}
+			groupIdsStr=groupIdsStr.substring(0, groupIdsStr.length()-1);
+		}
+		System.out.println("-----------groupIdsStr:"+groupIdsStr);
+		//查询对应环信上的组的详细信息
+		List<IMGroup2> groups2=imService.findAllGroup(groupIdsStr);
+		return new ResponseEntity<>(new Result<IMGroup2>("ok",groups2),HttpStatus.OK);
+	}
+	
 }
 
 

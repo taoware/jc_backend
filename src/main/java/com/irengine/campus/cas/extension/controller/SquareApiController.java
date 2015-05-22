@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -44,6 +43,7 @@ public class SquareApiController {
 	UnitService unitService;
 	
 	/** 新建广场 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value = "/user/{userId}/unit/{unitId}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> TestCreate(
