@@ -1,6 +1,7 @@
 package com.irengine.campus.cas.extension.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -106,6 +108,30 @@ public class IMApiController {
 		return new ResponseEntity<>(new Result<IMGroup2>("ok",groups2),HttpStatus.OK);
 	}
 	
+	/**向组里添加成员(多个)*/
+	///chatgroups/{groupId}/users
+	@RequestMapping(value="/chatgroups/{chatgroupid}/imUsers",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> addMembers(@PathVariable("chatgroupid") String chatgroupid,
+			@RequestBody Map<String,String> map){
+		try {
+			imService.addMembers(chatgroupid, map.get("userIds"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new Result<IMGroup2>("error",null),HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<>(new Result<IMGroup2>("ok",null),HttpStatus.OK);
+	}
+	
+	/**向组里移除成员(单个)*/
+	///chatgroups/{groupId}/users/{userId}
+	@RequestMapping(value="/chatgroups/{chatgroupid}/users/{userId}",method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> removeMembers(@PathVariable("chatgroupid") String chatgroupid,
+			@PathVariable("userId") String userId){
+		//imService.removeMembers(chat)
+		return new ResponseEntity<>(new Result<IMGroup2>("ok",null),HttpStatus.OK);
+	}
 }
 
 

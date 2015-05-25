@@ -34,4 +34,9 @@ public class RoleService {
 		roleRepository.delete(id);
 	}
 
+	public Role findById(Long roleId) {
+		Role role=roleRepository.findOne(roleId);
+		return role;
+	}
+
 }

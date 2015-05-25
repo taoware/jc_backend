@@ -6,12 +6,12 @@ import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,13 +46,32 @@ public class UserApiController {
 	@Autowired
 	RoleService roleService;
 
+	/**测试*/
+	/*
+	 * sample for CORS
+	 */
+	    @RequestMapping(value = "/cors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	    @ResponseBody
+	    public ResponseEntity<?> cors(HttpServletResponse response) {
+//Access-Control-Allow-Headers: x-requested-with
+	        response.addHeader("Access-Control-Allow-Origin", "*");
+//	        response.setHeader("Access-Control-Allow-Origin", "x-requested-with");
+//	        response.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
+//	        response.setHeader("Access-Control-Max-Age", "60");
+	        response.addHeader("Access-Control-Allow-Credentials", "true");
+            response.addHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
+            response.addHeader("Access-Control-Allow-Headers", "cache-control, content-type, x-http-method-override");
+	        return new ResponseEntity<>("CORS enabled", HttpStatus.OK);
+	    }
+
 	/**
 	 * 查询所有user信息,通过环信用户名查找user信息,通过name查找user,通过imId查找user, 通过ids查找user,
 	 * 通过id查找user,通过queryTime查找user,通过code查找user,通过mobile查找user
 	 */
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> list(Model model,
+	public ResponseEntity<?> list(
+			HttpServletResponse response,
 			@RequestParam(value = "imUsernames", required = false) String imUsernames,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "imIds", required = false) String imIds,
@@ -61,6 +80,9 @@ public class UserApiController {
 			@RequestParam(value = "queryTime", required = false) Date queryTime,
 			@RequestParam(value = "code", required = false) String code,
 			@RequestParam(value = "mobile", required = false) String mobile) {
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("Access-Control-Allow-Methods", "GET");
+		response.setHeader("Access-Control-Max-Age", "60");
 		List<User> users = new ArrayList<User>();
 		if (imUsernames != null && !"".equals(imUsernames)) {
 			users = userService.findByImUsernames(imUsernames);
@@ -95,7 +117,6 @@ public class UserApiController {
 		} else {
 			users = userService.list();
 		}
-		model.addAttribute("users",users);
 		return new ResponseEntity<>(new Result<User>("ok", users),
 				HttpStatus.OK);
 	}
@@ -224,9 +245,7 @@ public class UserApiController {
 				user.setAudit(true);
 				String mes = userService.create(user);
 				if ("success".equals(mes)) {
-					Role role = roleService.findByName("visitor");
-					user.getRoles().add(role);
-					userService.update2(user);
+					userService.matchUser(user);
 					return new ResponseEntity<>(
 							new Result<User>("用户注册成功", null), HttpStatus.OK);
 				} else {
@@ -289,7 +308,7 @@ public class UserApiController {
 			users.add(user);
 			/* 检测环信是否被注册上 */
 			String IMMsg = "";
-			if (user.getIm()==null) {
+			if (user.getIm() == null) {
 				IMMsg = imService.create(ProcessMobile(user.getMobile()),
 						"123456a");
 				IM im = null;

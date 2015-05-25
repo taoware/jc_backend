@@ -21,5 +21,10 @@ public class SimpleIMGroupService {
 		List<SimpleIMGroup> groups=(List<SimpleIMGroup>) simpleIMGroupRepository.findAll();
 		return groups;
 	}
+
+	/**保存group*/
+	public void create(SimpleIMGroup group) {
+		simpleIMGroupRepository.save(group);
+	}
 	
 }

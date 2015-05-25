@@ -27,6 +27,7 @@ import com.irengine.campus.cas.extension.domain.Data;
 import com.irengine.campus.cas.extension.domain.IM;
 import com.irengine.campus.cas.extension.domain.IMGroup2;
 import com.irengine.campus.cas.extension.domain.Member;
+import com.irengine.campus.cas.extension.domain.SimpleIMGroup;
 import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.repository.IMRepository;
 import com.irengine.commons.JSONUtils;
@@ -39,9 +40,35 @@ public class IMService {
 	IMRepository imRepository;
 	@Autowired
 	UserService userService;
+	@Autowired
+	SimpleIMGroupService simpleIMGroupService;
 
 	private static Logger logger = LoggerFactory
 			.getLogger(FileUploadController.class);
+	
+	/**向组添加成员
+	 * @throws Exception */
+	public String addMembers(String chatgroupid,String userIds) throws Exception{
+		/*把userIds转成imUsername并且拼成字符串,得到requestBody的json*/
+		//{"usernames":["5cxhactgdj","mh2kbjyop1"]}
+		String json="{\"usernames\":[";
+		String[] userIds2=userIds.split(",");
+		for(String userId:userIds2){
+			User user=userService.findById(Long.parseLong(userId));
+			if(user.getIm()!=null){
+				json+="\""+user.getIm().getUsername()+"\",";
+			}
+		}
+		json=json.substring(0, json.length()-1)+"]}";
+		/*调用post请求*/
+		///{org_name}/{app_name}/chatgroups/{chatgroupid}/users
+		String path=Url.addMembersToGroup+chatgroupid+"/users";
+		String token = getToken();
+		String header1 = "Authorization";
+		String header2 = "Bearer " + token;
+		Map<String,String> msgMap=sendPost2(json, path, header1, header2, "POST");
+		return msgMap.get("msg");
+	}
 
 	/**
 	 * 取得token
@@ -132,13 +159,24 @@ public class IMService {
 		try {
 			token = getToken();
 		} catch (Exception e1) {
+			
 		}
 		String path = Url.imChatgroupsUrl;
 		String header1 = "Authorization";
 		String header2 = "Bearer " + token;
 		try {
-			msg = sendPost(json, path, header1, header2, "POST");
+			Map<String,String> msgMap = sendPost2(json, path, header1, header2, "POST");
+			msg=msgMap.get("msg");
+			String responseBody=msgMap.get("responseBody");
+			System.out.println(responseBody);
+			String groupId=responseBody.substring(responseBody.indexOf("groupid")+12, responseBody.indexOf("timestamp")-8);
+			System.out.println(groupId);
+			/*怎样的到新建群组的groupId:通过responseBody返回内容取得*/
+			SimpleIMGroup group=new SimpleIMGroup();
+			group.setGroupId(groupId);
+			simpleIMGroupService.create(group);
 		} catch (Exception e) {
+			e.printStackTrace();
 			msg = "error";
 		}
 		return msg;
@@ -382,6 +420,7 @@ public class IMService {
 		return msgMap;
 	}
 
+	/**查找所有组以及对应的成员*/
 	public List<IMGroup2> findAllGroup(String groupIdsStr) {
 		/*发送请求查询环信上组的详细信息*/
 		String token="";
@@ -401,9 +440,7 @@ public class IMService {
 			}
 			/*将得到的responseBody信息注入到IMGroup类中*/
 			String responseBody=mapMsg.get("responseBody");
-			System.out.println(responseBody);
 			String groupsMsg=responseBody.substring(responseBody.indexOf("data")-1, responseBody.indexOf("timestamp")-4);
-			System.out.println(groupsMsg);
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			Data<IMGroup2> data=(Data) JSONUtils.parseObject("{"+groupsMsg+"}",new TypeReference<Data<IMGroup2>>(){});
 			List<IMGroup2> list = data.getData();

@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.irengine.campus.cas.extension.domain.BaseUser;
 import com.irengine.campus.cas.extension.domain.Device;
 import com.irengine.campus.cas.extension.domain.Permission;
 import com.irengine.campus.cas.extension.domain.Role;
+import com.irengine.campus.cas.extension.domain.Unit;
 import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.repository.RoleRepository;
 import com.irengine.campus.cas.extension.repository.UploadedFileRepository;
@@ -29,6 +31,12 @@ public class UserService {
 	UploadedFileRepository ufr;
 	@Autowired
 	RoleRepository roleRepository;
+	@Autowired
+	BaseUserService baseUserService;
+	@Autowired
+	RoleService roleService;
+	@Autowired
+	UnitService unitService;
 
 	public List<User> list() {
 		List<User> users = (List<User>) userRepository.findAll();
@@ -39,7 +47,8 @@ public class UserService {
 		user.setCreatedTime(DateProvider.DEFAULT.getDate());
 		user.setUpdatedTime(DateProvider.DEFAULT.getDate());
 		String mes = "";
-		if (verifyMobile(user.getMobile())&&verifyPassword(user.getPlainPassword())) {
+		if (verifyMobile(user.getMobile())
+				&& verifyPassword(user.getPlainPassword())) {
 			userRepository.save(user);
 			mes = "success";
 		} else {
@@ -49,7 +58,7 @@ public class UserService {
 	}
 
 	public List<User> getLastUpdated(Date queryTime) {
-		List<User> users=userRepository.findLastUpdated(queryTime);
+		List<User> users = userRepository.findLastUpdated(queryTime);
 		return users;
 	}
 
@@ -100,17 +109,18 @@ public class UserService {
 		userRepository.delete(id);
 	}
 
-	/**修改user中的某个属性*/
-	public void update2(User user){
+	/** 修改user中的某个属性 */
+	public void update2(User user) {
 		user.setUpdatedTime(DateProvider.DEFAULT.getDate());
 		userRepository.save(user);
 	}
-	
-	/** 修改user(除头像信息)(做验证)*/
+
+	/** 修改user(除头像信息)(给手机号和密码做验证) */
 	public String update(User user) {
 		user.setUpdatedTime(DateProvider.DEFAULT.getDate());
 		String mes = "";
-		if (verifyMobile(user.getMobile())&&verifyPassword(user.getPlainPassword())) {
+		if (verifyMobile(user.getMobile())
+				&& verifyPassword(user.getPlainPassword())) {
 			userRepository.save(user);
 			mes = "success";
 		} else {
@@ -121,11 +131,11 @@ public class UserService {
 
 	public String updatePassword(String plainPassword, long id) {
 		User user = userRepository.findOne(id);
-		if(verifyPassword(plainPassword)){
+		if (verifyPassword(plainPassword)) {
 			user.setPlainPassword(plainPassword);
 			userRepository.save(user);
 			return "success";
-		}else{
+		} else {
 			return "error";
 		}
 	}
@@ -161,13 +171,13 @@ public class UserService {
 				.findPermissionIdsByRoleId(roleId);
 		return permissionIds;
 	}
-	
-	public Set<Permission> findPermissionsByUserId(long userId){
+
+	public Set<Permission> findPermissionsByUserId(long userId) {
 		List<Long> roleIds = findRoleIdsByUserId(userId);
-		List<Permission> permissions2=new ArrayList<Permission>();
+		List<Permission> permissions2 = new ArrayList<Permission>();
 		if (roleIds.size() > 0) {
 			for (Long roleId : roleIds) {
-				List<Permission> permissions=findPermissionsByRoleId(roleId);
+				List<Permission> permissions = findPermissionsByRoleId(roleId);
 				for (Permission permission : permissions) {
 					if (permissions2.indexOf(permission) == -1) {
 						permissions2.add(permission);
@@ -175,15 +185,16 @@ public class UserService {
 				}
 			}
 		}
-		Set<Permission> permissions3=new HashSet<Permission>();
-		for(Permission permission:permissions2){
+		Set<Permission> permissions3 = new HashSet<Permission>();
+		for (Permission permission : permissions2) {
 			permissions3.add(permission);
 		}
 		return permissions3;
 	}
-	
+
 	public List<Permission> findPermissionsByRoleId(Long roleId) {
-		List<Permission> permissions=userRepository.findPermissionsByRoleId(roleId);
+		List<Permission> permissions = userRepository
+				.findPermissionsByRoleId(roleId);
 		return permissions;
 	}
 
@@ -208,23 +219,22 @@ public class UserService {
 	}
 
 	public long findNextId() {
-		return userRepository.findMaxId()+1;
+		return userRepository.findMaxId() + 1;
 	}
 
-	private boolean verifyPassword(String plainPassword){
+	private boolean verifyPassword(String plainPassword) {
 		boolean j1 = plainPassword.matches("[\\da-zA-Z]{6,16}");
-		boolean j2 = plainPassword.matches(
-				"[a-zA-Z]+[\\d]+||[\\d]+[a-zA-Z]+");
-		if(j1==true&&j2==true){
+		boolean j2 = plainPassword.matches("[a-zA-Z]+[\\d]+||[\\d]+[a-zA-Z]+");
+		if (j1 == true && j2 == true) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
-	
-	private boolean verifyMobile(String mobile){
-		boolean jMobile = mobile.matches(
-				"^((13[0-9])|(15[0-9])|(18[0-9]))\\d{8}$");
+
+	private boolean verifyMobile(String mobile) {
+		boolean jMobile = mobile
+				.matches("^((13[0-9])|(15[0-9])|(18[0-9]))\\d{8}$");
 		return jMobile;
 	}
 
@@ -239,17 +249,17 @@ public class UserService {
 	}
 
 	public User findByName(String name) {
-		User user=userRepository.findByName(name);
+		User user = userRepository.findByName(name);
 		return user;
 	}
 
-	/*根据环信username查找对应用户**/
+	/* 根据环信username查找对应用户* */
 	public List<User> findByImUsernames(String imUsernames) {
 		String[] strs = imUsernames.split(",");
-		List<User> users=new ArrayList<User>();
-		for(String imUsername:strs){
-			User user=userRepository.findByImUsername(imUsername);
-			if(user!=null){
+		List<User> users = new ArrayList<User>();
+		for (String imUsername : strs) {
+			User user = userRepository.findByImUsername(imUsername);
+			if (user != null) {
 				users.add(user);
 			}
 		}
@@ -257,7 +267,39 @@ public class UserService {
 	}
 
 	public List<User> findByMobile2(String mobile) {
-		List<User> users=userRepository.findByMobile2(mobile+"%");
+		List<User> users = userRepository.findByMobile2(mobile + "%");
 		return users;
+	}
+
+	/* 在表jc_base_user表中匹配用户,自动配置角色,并自动匹配unit* */
+	public void matchUser(User user) {
+		if (user != null) {
+			/* 匹配user的mobile和name,找到则配置BaseUser表中对应的unit和role,找不到则配置角色5并不配置unit */
+			String name=user.getName();
+			String mobile=user.getMobile();
+			BaseUser baseUser=baseUserService.findByNameAndMobile(name,mobile);
+			if(baseUser!=null){
+				/*在BaseUser中找到对应用户信息,自动配置role和unit*/
+				Long roleId=baseUser.getRoleId();
+				Long unitId=baseUser.getUnitId();
+				if(roleId!=null){
+					/*配置role*/
+					Role role=roleService.findById(roleId);
+					if(role!=null){
+						user.getRoles().add(role);
+					}
+					/*配置unit*/
+					Unit unit=unitService.findById(unitId);
+					if(unit!=null){
+						user.getUnits().add(unit);
+					}
+				}
+			}else{
+				/*没找到,配置角色5*/
+				Role role=roleService.findByName("visitor");
+				user.getRoles().add(role);
+			}
+			update2(user);
+		}
 	}
 }

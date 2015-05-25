@@ -41,9 +41,141 @@ public class SquareApiController {
 	UtilityService utilityService;
 	@Autowired
 	UnitService unitService;
+
+	/** 新建广场(安卓适用) */
+	@RequestMapping(value = "/user/{userId}/unit/{unitId}/information/{information}/type/{type}", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> TestCreate3(
+			@PathVariable("information") String information,
+			@PathVariable("type") String type,
+			@PathVariable("userId") long userId,
+			@PathVariable("unitId") long unitId,
+			@RequestParam(value = "file1", required = false) MultipartFile file1,
+			@RequestParam(value = "file2", required = false) MultipartFile file2,
+			@RequestParam(value = "file3", required = false) MultipartFile file3,
+			@RequestParam(value = "file4", required = false) MultipartFile file4,
+			@RequestParam(value = "file5", required = false) MultipartFile file5,
+			@RequestParam(value = "file6", required = false) MultipartFile file6,
+			@RequestParam(value = "file7", required = false) MultipartFile file7,
+			@RequestParam(value = "file8", required = false) MultipartFile file8,
+			@RequestParam(value = "file9", required = false) MultipartFile file9,
+			HttpServletRequest request) throws IOException {
+		List<MultipartFile> files = new ArrayList<MultipartFile>();
+		files.add(file1);
+		files.add(file2);
+		files.add(file3);
+		files.add(file4);
+		files.add(file5);
+		files.add(file6);
+		files.add(file7);
+		files.add(file8);
+		files.add(file9);
+		String information1 = "";
+		String type1 = "";
+		/* 解决乱码问题 */
+		try {
+			information1 = new String(information.getBytes("ISO-8859-1"),
+					"utf-8");
+			type1 = new String(type.getBytes("ISO-8859-1"), "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			return new ResponseEntity<>(new Result<Square>("error", null),
+					HttpStatus.BAD_REQUEST);
+		}
+		information1=information;
+		type1=type;
+		List<Long> permissionIds = userService
+				.findPermissionIdsByUserId(userId);
+		if (!type1.equals("员工") && !type1.equals("供应商") && !type1.equals("联采")) {
+			/* 判断type格式 */
+			return new ResponseEntity<>(new Result<Square>("广场类型错误", null),
+					HttpStatus.BAD_REQUEST);
+		} else {
+			/* 判断是否有对应权限 */
+			if (type1.equals("员工")) {
+				if (permissionIds.indexOf(15L) == -1) {
+					return new ResponseEntity<>(new Result<Square>(
+							"无权限创建员工类广场", null), HttpStatus.BAD_REQUEST);
+				}
+			}
+			if (type1.equals("供应商")) {
+				if (permissionIds.indexOf(17L) == -1) {
+					return new ResponseEntity<>(new Result<Square>(
+							"无权限创建供应商类广场", null), HttpStatus.BAD_REQUEST);
+				}
+			}
+			if (type1.equals("联采")) {
+				if (permissionIds.indexOf(13L) == -1) {
+					return new ResponseEntity<>(new Result<Square>(
+							"无权限创建联采类广场", null), HttpStatus.BAD_REQUEST);
+				}
+			}
+			Square square = new Square(type1, information1,
+					unitService.findById(unitId), userService.findById(userId));
+			squareService.create(square);
+			long entityId = squareService.getMaxId();
+			List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
+			List<Square> squares = new ArrayList<Square>();
+			try {
+				uploadedFiles = utilityService.uploadFiles("square", entityId,
+						files, request, "");
+			} catch (Exception e) {
+				e.printStackTrace();
+				squareService.delete(entityId);
+				return new ResponseEntity<>(new Result<Square>(
+						"upload file error", squares), HttpStatus.BAD_REQUEST);
+			}
+			Square square1 = squareService.findById(entityId);
+			square1.setPhotos(new HashSet(uploadedFiles));
+			squareService.update(square1);
+			squares.add(square1);
+			return new ResponseEntity<>(new Result<Square>("ok", squares),
+					HttpStatus.OK);
+		}
+	}
 	
+	/** 新建广场(不带图片) */
+	@RequestMapping(value = "/user/{userId}/unit/{unitId}/test", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> TestCreate2(
+			@RequestParam("information") String information,
+			@RequestParam("type") String type,
+			@PathVariable("userId") long userId,
+			@PathVariable("unitId") long unitId) {
+		List<Long> permissionIds = userService
+				.findPermissionIdsByUserId(userId);
+		if (!type.equals("员工") && !type.equals("供应商") && !type.equals("联采")) {
+			/* 判断type格式 */
+			return new ResponseEntity<>(new Result<Square>("广场类型错误", null),
+					HttpStatus.BAD_REQUEST);
+		} else {
+			/* 判断是否有对应权限 */
+			if (type.equals("员工")) {
+				if (permissionIds.indexOf(15L) == -1) {
+					return new ResponseEntity<>(new Result<Square>(
+							"无权限创建员工类广场", null), HttpStatus.BAD_REQUEST);
+				}
+			}
+			if (type.equals("供应商")) {
+				if (permissionIds.indexOf(17L) == -1) {
+					return new ResponseEntity<>(new Result<Square>(
+							"无权限创建供应商类广场", null), HttpStatus.BAD_REQUEST);
+				}
+			}
+			if (type.equals("联采")) {
+				if (permissionIds.indexOf(13L) == -1) {
+					return new ResponseEntity<>(new Result<Square>(
+							"无权限创建联采类广场", null), HttpStatus.BAD_REQUEST);
+				}
+			}
+			Square square = new Square(type, information,
+					unitService.findById(unitId), userService.findById(userId));
+			squareService.create(square);
+			return new ResponseEntity<>(new Result<Square>("ok", null),
+					HttpStatus.OK);
+		}
+	}
+
 	/** 新建广场 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value = "/user/{userId}/unit/{unitId}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> TestCreate(
@@ -73,7 +205,7 @@ public class SquareApiController {
 		files.add(file9);
 		String information1 = "";
 		String type1 = "";
-		/*解决乱码问题*/
+		/* 解决乱码问题 */
 		try {
 			information1 = new String(information.getBytes("ISO-8859-1"),
 					"utf-8");
@@ -108,17 +240,20 @@ public class SquareApiController {
 							"无权限创建联采类广场", null), HttpStatus.BAD_REQUEST);
 				}
 			}
-			Square square = new Square(type1, information1, unitService.findById(unitId), userService.findById(userId));
+			Square square = new Square(type1, information1,
+					unitService.findById(unitId), userService.findById(userId));
 			squareService.create(square);
 			long entityId = squareService.getMaxId();
-			List<UploadedFile> uploadedFiles=new ArrayList<UploadedFile>();
+			List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
 			List<Square> squares = new ArrayList<Square>();
 			try {
-					uploadedFiles=utilityService.uploadFiles("square", entityId, files, request,"");
+				uploadedFiles = utilityService.uploadFiles("square", entityId,
+						files, request, "");
 			} catch (Exception e) {
+				e.printStackTrace();
 				squareService.delete(entityId);
-				return new ResponseEntity<>(new Result<Square>("upload file error", squares),
-						HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(new Result<Square>(
+						"upload file error", squares), HttpStatus.BAD_REQUEST);
 			}
 			Square square1 = squareService.findById(entityId);
 			square1.setPhotos(new HashSet(uploadedFiles));
@@ -133,21 +268,22 @@ public class SquareApiController {
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> list(@RequestParam("userId") long userId,
-			@RequestParam(value="unitId",required=false) Long unitId,
-			@RequestParam(value="id",required=false) Long id) {
+			@RequestParam(value = "unitId", required = false) Long unitId,
+			@RequestParam(value = "id", required = false) Long id) {
 		List<Long> permissionIds = userService
 				.findPermissionIdsByUserId(userId);
 		List<Square> squares = new ArrayList<Square>();
-		if(unitId!=null||"".equals(unitId)){
-			/*根据userId和unitId查询广场*/
-			squares=squareService.findByUserIdAndUnitId(userId,unitId);
+		if (unitId != null || "".equals(unitId)) {
+			/* 根据userId和unitId查询广场 */
+			squares = squareService.findByUserIdAndUnitId(userId, unitId);
 			Collections.sort(squares);
-		}else if(id!=null||"".equals(id)){
-			/*根据id查询广场*/
+		} else if (id != null || "".equals(id)) {
+			/* 根据id查询广场 */
 			Square square = squareService.findById(id);
 			squares.add(square);
-		}else{
-			squares=squareService.findByUserIdAndPermissions(userId, permissionIds);
+		} else {
+			squares = squareService.findByUserIdAndPermissions(userId,
+					permissionIds);
 			Collections.sort(squares);
 		}
 		return new ResponseEntity<>(new Result<Square>("ok", squares),
@@ -157,7 +293,8 @@ public class SquareApiController {
 	/** 修改广场信息 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> update(@PathVariable("id") Long id,@RequestBody Square square) {
+	public ResponseEntity<?> update(@PathVariable("id") Long id,
+			@RequestBody Square square) {
 		square.setId(id);
 		squareService.update(square);
 		return new ResponseEntity<>(new Result<Square>("ok", null),
@@ -182,5 +319,5 @@ public class SquareApiController {
 		return new ResponseEntity<>(new Result<Square>("ok", squares),
 				HttpStatus.OK);
 	}
-	
+
 }

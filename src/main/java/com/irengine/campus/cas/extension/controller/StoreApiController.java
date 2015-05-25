@@ -26,6 +26,7 @@ import com.irengine.campus.cas.extension.domain.Information;
 import com.irengine.campus.cas.extension.domain.Result;
 import com.irengine.campus.cas.extension.domain.Store;
 import com.irengine.campus.cas.extension.domain.UploadedFile;
+import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.service.StoreService;
 import com.irengine.campus.cas.extension.service.UtilityService;
 
@@ -158,4 +159,32 @@ public class StoreApiController {
 				HttpStatus.OK);
 	}
 
+	/** 修改门店展示照片 */
+	@RequestMapping(value = "/{id}/photo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> modifyAvatar(@PathVariable("id") long id,
+			@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+		Store store = storeService.findById(id);
+		List<MultipartFile> files = new ArrayList<MultipartFile>();
+		List<UploadedFile> files1 = new ArrayList<UploadedFile>();
+		if (!file.isEmpty()) {
+			files.add(file);
+			try {
+				files1 = utilityService.uploadFiles("store", id, files, request,
+						"");
+				if (files1.size() > 0) {
+					store.setPhoto(files1.get(0));
+					storeService.update(store);
+				}
+			} catch (IOException e) {
+				return new ResponseEntity<>(new Result<Store>("upload error",
+						null), HttpStatus.BAD_REQUEST);
+			}
+		} else {
+			return new ResponseEntity<>(
+					new Result<User>("file is empty", null),
+					HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<>(new Result<Store>("ok", null), HttpStatus.OK);
+	}
 }

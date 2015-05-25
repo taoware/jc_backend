@@ -3,6 +3,7 @@ package com.irengine.campus.cas.extension.domain;
 import java.util.List;
 
 
+@SuppressWarnings("hiding")
 public class Data <IMGroup2>{
 	private List<IMGroup2> data;
 

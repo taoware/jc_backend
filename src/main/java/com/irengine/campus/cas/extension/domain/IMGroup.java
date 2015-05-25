@@ -14,6 +14,14 @@ public class IMGroup {
 	private String memberIds;// 群组成员
 	private User master;//群主
 	private List<User> members=new ArrayList<User>();//群成员
+	
+	public Integer getMaxusers() {
+		return maxusers;
+	}
+
+	public void setMaxusers(Integer maxusers) {
+		this.maxusers = maxusers;
+	}
 
 	public User getMaster() {
 		return master;
@@ -29,10 +37,6 @@ public class IMGroup {
 
 	public void setMembers(List<User> members) {
 		this.members = members;
-	}
-
-	public void setMaxusers(Integer maxusers) {
-		this.maxusers = maxusers;
 	}
 
 	public String getGroupname() {
@@ -57,14 +61,6 @@ public class IMGroup {
 
 	public void setPub(boolean pub) {
 		this.pub = pub;
-	}
-
-	public int getMaxusers() {
-		return maxusers;
-	}
-
-	public void setMaxusers(int maxusers) {
-		this.maxusers = maxusers;
 	}
 
 	public boolean isApproval() {
