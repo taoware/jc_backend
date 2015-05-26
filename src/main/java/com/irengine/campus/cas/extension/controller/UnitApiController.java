@@ -32,7 +32,7 @@ public class UnitApiController {
         return new ResponseEntity<>(units, HttpStatus.OK);
     }
     //method = RequestMethod.PUT?
-    //设置最上级unit
+    //创建最上级unit
     @RequestMapping(value = "/root", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> createRoot(@RequestBody Unit root) {
@@ -58,8 +58,8 @@ public class UnitApiController {
     public ResponseEntity<?> addChild(@PathVariable("id") Long id, @RequestBody Unit child) {
 
     	unitService.addChild(id, child);
-    	
-        return new ResponseEntity<>(HttpStatus.OK);
+    	Long unitId=unitService.findMaxId();
+        return new ResponseEntity<>(unitId,HttpStatus.OK);
     }
     
     /**删除子级unit*/

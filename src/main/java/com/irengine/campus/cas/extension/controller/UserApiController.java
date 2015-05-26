@@ -25,7 +25,6 @@ import com.irengine.campus.cas.extension.domain.Device;
 import com.irengine.campus.cas.extension.domain.IM;
 import com.irengine.campus.cas.extension.domain.Password;
 import com.irengine.campus.cas.extension.domain.Result;
-import com.irengine.campus.cas.extension.domain.Role;
 import com.irengine.campus.cas.extension.domain.UploadedFile;
 import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.service.IMService;
@@ -194,7 +193,11 @@ public class UserApiController {
 					new Result<User>("file is empty", null),
 					HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<>(new Result<User>("ok", null), HttpStatus.OK);
+		/*搜索该id用户并且上传头像成功后返回信息*/
+		List<User> users=new ArrayList<User>();
+		User user1=userService.findById(id);
+		users.add(user1);
+		return new ResponseEntity<>(new Result<User>("ok", users), HttpStatus.OK);
 	}
 
 	/**
@@ -233,8 +236,9 @@ public class UserApiController {
 			}
 			User user1 = userService.findByMobile(user.getMobile());
 			if (user1 != null) {
+				//401:该手机已被注册
 				return new ResponseEntity<>(new Result<User>("该手机已被注册", null),
-						HttpStatus.BAD_REQUEST);
+						HttpStatus.UNAUTHORIZED);
 			} else {
 				imService.create(ProcessMobile(user.getMobile()), "123456a");
 				IM im = null;
@@ -247,10 +251,12 @@ public class UserApiController {
 				if ("success".equals(mes)) {
 					userService.matchUser(user);
 					return new ResponseEntity<>(
+							//200:用户注册成功
 							new Result<User>("用户注册成功", null), HttpStatus.OK);
 				} else {
+					//402:手机号或密码格式错误,注册失败
 					return new ResponseEntity<>(new Result<User>(
-							"手机号或密码格式错误,注册失败", null), HttpStatus.BAD_REQUEST);
+							"手机号或密码格式错误,注册失败", null), HttpStatus.PAYMENT_REQUIRED);
 				}
 			}
 		}
@@ -320,15 +326,19 @@ public class UserApiController {
 					userService.update2(user);
 				}
 			}
+			//200:登入成功
 			return new ResponseEntity<>(
 					new Result<User>("登录成功." + IMMsg, users), HttpStatus.OK);
 		} else if ("notExist".equals(str)) {
+			//403:用户名不存在
 			return new ResponseEntity<>(new Result<User>("用户名不存在.", null),
-					HttpStatus.BAD_REQUEST);
+					HttpStatus.FORBIDDEN);
 		} else if ("Wrong".equals(str)) {
+			//406:密码错误
 			return new ResponseEntity<>(new Result<User>("密码错误", null),
-					HttpStatus.BAD_REQUEST);
+					HttpStatus.NOT_ACCEPTABLE);
 		} else {
+			//400:服务器异常
 			return new ResponseEntity<>(new Result<User>("服务器异常", null),
 					HttpStatus.BAD_REQUEST);
 		}

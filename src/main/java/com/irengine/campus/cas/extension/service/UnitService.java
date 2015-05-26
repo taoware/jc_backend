@@ -110,5 +110,10 @@ public class UnitService {
 		Unit unit=unitRepository.findOne(id);
 		return unit;
 	}
+
+	public Long findMaxId() {
+		Long id=unitRepository.findMaxId();
+		return id;
+	}
 	
 }

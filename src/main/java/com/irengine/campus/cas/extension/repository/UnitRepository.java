@@ -38,4 +38,7 @@ public interface UnitRepository extends CrudRepository<Unit, Long>{
 	@Modifying
 	@Query("UPDATE Unit u SET u.right = :parentLeft WHERE u.right = 0")
 	public void updateLRValue4(@Param("parentLeft") Long parentLeft);
+
+	@Query("select max(u.id) from Unit u")
+	public Long findMaxId();
 }
