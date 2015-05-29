@@ -1,5 +1,6 @@
 /*添加基础用户信息*/
-insert into jc_base_user(id,address,category,gender,location,mobile,name,position,role,role_id,unit,unit_id) values(1,'a','a','a','a','15111111111','张三','a','a',1,'a',2);/*添加本地环信组信息*/
+insert into jc_base_user(id,address,category,gender,location,mobile,name,position,role,role_id,unit,unit_id) values(1,'a','a','a','a','15111111111','张三','a','a',1,'a',2);
+/*添加本地环信组信息*/
 insert into jc_im values(1,'123456a','test1');
 insert into jc_im values(2,'123456a','test2');
 insert into jc_im values(3,'123456a','test3');
@@ -14,19 +15,19 @@ insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, c
 insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, category) values(8, '上海徐家汇xx高级中学', '上海徐汇教育集团-上海瑜伽会xx高级中学', 6, 15, 16, true, 'School');
 insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, category) values(9, '上海市徐家汇xx小学', '上海徐汇教育集团-上海市徐家汇xx小学', 6, 17, 18, true, 'School');
 insert into jc_units(id, name, uri_name, parent_id, left_id, right_id, enable, category) values(10, '上海市徐家汇xx中学', '上海徐汇教育集团-上海市徐家汇xx中学', 6, 19, 20, true, 'School');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes,imid)values(false,true,1, 'zhang','斯蒂芬','huang@gxcm.com','TRUE','女','11111','外部','9cbf8a4dcb8e30682b927f352d6559a0','店长','上海市-上海市-浦东新区','燕郊','篮球',1);
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes,imid)values(false,true,2, 'dj','乐福','eisof@gxcm.com','TRUE','男','22222','内部','9cbf8a4dcb8e30682b927f352d6559a0','店长','上海市-上海市-徐汇区','燕郊','羽毛球',2);
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes,imid)values(false,true,3, 'hiphop','科比','4585465581@qq.com','TRUE','女','18965412365','外部','7374ce58be384f97fb15117dd99fba3c','店长','上海市-上海市-浦东新区','燕郊','棒球',3);
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,4, 'rnb','艾弗森','665848554@qq.com','TRUE','男','12345678912','内部','85862151eaed9bbc8b94373243e687cf','联采','上海市-上海市-浦东新区','燕郊','高尔夫');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,5, 'king','霍华德','dsea@gxcm.com','TRUE','男','12345678952','外部','74a0c18637d1c7585a37b331c78d71a8','联采','上海市-上海市-松江区','燕郊','排球');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,6, 'jason','哈登','dsf@gxcm.com','TRUE','男','12345874521','内部','9b476ed9ae35b34d43890d662bd1924a','联采','上海市-上海市-浦东新区','燕郊','铅球');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,7, 'jack','哈登','dsf@gxcm.com','TRUE','男','12345874522','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','燕郊','乒乓球');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,8, 'asdfds','sdf','dsf@gxcm.com','TRUE','男','13000000000','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','燕郊','乒乓球');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,9, 'sadfsd','asdfsdf','dsf@gxcm.com','TRUE','男','13011111111','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','燕郊','乒乓球');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,10, 'ag','sdf','dsf@gxcm.com','TRUE','男','13022222222','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','燕郊','乒乓球');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,11, 'gdss','asdgsfsdf','dsf@gxcm.com','TRUE','男','13033333333','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','燕郊','乒乓球');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,12, 'sadklk','asdflhg','dsf@gxcm.com','TRUE','男','13044444444','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','燕郊','乒乓球');
-insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,13, 'dfgdf','dfgsdf','dsf@gxcm.com','TRUE','男','13055555555','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','燕郊','乒乓球');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes,imid)values(false,true,1, 'zhang','斯蒂芬','huang@gxcm.com','TRUE','女','11111','外部','9cbf8a4dcb8e30682b927f352d6559a0','店长','上海市-上海市-浦东新区','上海大学教育超市','篮球',1);
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes,imid)values(false,true,2, 'dj','乐福','eisof@gxcm.com','TRUE','男','22222','内部','9cbf8a4dcb8e30682b927f352d6559a0','店长','上海市-上海市-徐汇区','南京大学教育超市','羽毛球',2);
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes,imid)values(false,true,3, 'hiphop','科比','4585465581@qq.com','TRUE','女','18965412365','外部','7374ce58be384f97fb15117dd99fba3c','店长','上海市-上海市-浦东新区','上海大学教育超市','棒球',3);
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,4, 'rnb','艾弗森','665848554@qq.com','TRUE','男','12345678912','内部','85862151eaed9bbc8b94373243e687cf','联采','上海市-上海市-浦东新区','上海交通大学教超','高尔夫');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,5, 'king','霍华德','dsea@gxcm.com','TRUE','男','12345678952','外部','74a0c18637d1c7585a37b331c78d71a8','联采','上海市-上海市-松江区','北京大学教育超市','排球');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,6, 'jason','哈登','dsf@gxcm.com','TRUE','男','12345874521','内部','9b476ed9ae35b34d43890d662bd1924a','联采','上海市-上海市-浦东新区','清华大学教育超市','铅球');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,7, 'jack','哈登','dsf@gxcm.com','TRUE','男','12345874522','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','华中师范大学教育超市','乒乓球');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,8, 'asdfds','sdf','dsf@gxcm.com','TRUE','男','13000000000','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','九江学院教育超市','乒乓球');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,9, 'sadfsd','asdfsdf','dsf@gxcm.com','TRUE','男','13011111111','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','清华大学教育超市','乒乓球');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,10, 'ag','sdf','dsf@gxcm.com','TRUE','男','13022222222','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','华中科技大学教育超市','乒乓球');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,11, 'gdss','asdgsfsdf','dsf@gxcm.com','TRUE','男','13033333333','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','华中师范教超','乒乓球');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,12, 'sadklk','asdflhg','dsf@gxcm.com','TRUE','男','13044444444','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','华中科技教超','乒乓球');
+insert into jc_users(audit,enableim,id, code,name,email,enable,gender,mobile,category,password,position,location,address,notes)values(false,true,532, 'dfgdf','dfgsdf','dsf@gxcm.com','TRUE','男','13055555555','内部','9cbf8a4dcb8e30682b927f352d6559a0','联采','河北省-三河市','北京大学','乒乓球');
 
 insert into jc_news(id,title,type,user_id) values(1,'hehe','slideshow','1');
 insert into jc_news(id,title,type,user_id) values(2,'haha','slideshow','1');
@@ -98,6 +99,7 @@ Insert into jc_USER_ROLE values(9,4);
 Insert into jc_USER_ROLE values(10,1);
 Insert into jc_USER_ROLE values(11,3);
 Insert into jc_USER_ROLE values(12,4);
+Insert into jc_USER_ROLE values(532,2);
 /*角色关联权限 种子数据:
 店员权限*/
 Insert into jc_ROLE_PERMISSION values(1,1);

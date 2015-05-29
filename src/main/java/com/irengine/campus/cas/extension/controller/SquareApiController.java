@@ -43,7 +43,8 @@ public class SquareApiController {
 	UnitService unitService;
 
 	/** 新建广场(安卓适用) */
-	@RequestMapping(value = "/user/{userId}/unit/{unitId}/information/{information}/type/{type}", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@RequestMapping(value = "/ad/user/{userId}/unit/{unitId}/information/{information}/type/{type}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> TestCreate3(
 			@PathVariable("information") String information,
@@ -81,8 +82,8 @@ public class SquareApiController {
 			return new ResponseEntity<>(new Result<Square>("error", null),
 					HttpStatus.BAD_REQUEST);
 		}
-		information1=information;
-		type1=type;
+		information1 = information;
+		type1 = type;
 		List<Long> permissionIds = userService
 				.findPermissionIdsByUserId(userId);
 		if (!type1.equals("员工") && !type1.equals("供应商") && !type1.equals("联采")) {
@@ -132,9 +133,9 @@ public class SquareApiController {
 					HttpStatus.OK);
 		}
 	}
-	
+
 	/** 新建广场(不带图片) */
-	@RequestMapping(value = "/user/{userId}/unit/{unitId}/test", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/ad/user/{userId}/unit/{unitId}/test", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> TestCreate2(
 			@RequestParam("information") String information,
@@ -176,6 +177,7 @@ public class SquareApiController {
 	}
 
 	/** 新建广场 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value = "/user/{userId}/unit/{unitId}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> TestCreate(
@@ -282,9 +284,15 @@ public class SquareApiController {
 			Square square = squareService.findById(id);
 			squares.add(square);
 		} else {
-			squares = squareService.findByUserIdAndPermissions(userId,
+			List<Square> squares1 = new ArrayList<Square>();
+			squares1 = squareService.findByUserIdAndPermissions(userId,
 					permissionIds);
-			Collections.sort(squares);
+			Collections.sort(squares1);
+			if (squares1.size() > 50) {
+				for (int i = 0; i < 50; i++) {
+					squares.add(squares1.get(i));
+				}
+			}
 		}
 		return new ResponseEntity<>(new Result<Square>("ok", squares),
 				HttpStatus.OK);
@@ -306,6 +314,24 @@ public class SquareApiController {
 	@ResponseBody
 	public ResponseEntity<?> delete(@PathVariable("id") long id) {
 		squareService.delete(id);
+		return new ResponseEntity<>(new Result<Square>("ok", null),
+				HttpStatus.OK);
+	}
+
+	/**
+	 * 删除该用户发的所有广场信息
+	 * 
+	 * @param userId
+	 *            用户id
+	 * @return
+	 */
+	@RequestMapping(value = "/{userId}/user", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> deleteByUserId(@PathVariable("userId") long userId) {
+		List<Square> squares = squareService.findByUserId(userId);
+		for (Square square : squares) {
+			squareService.delete(square.getId());
+		}
 		return new ResponseEntity<>(new Result<Square>("ok", null),
 				HttpStatus.OK);
 	}

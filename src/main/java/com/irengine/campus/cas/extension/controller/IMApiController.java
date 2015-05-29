@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,118 +27,133 @@ import com.irengine.campus.cas.extension.service.UserService;
 @RestController
 @RequestMapping(value = "/im")
 public class IMApiController {
-	
+
 	@Autowired
 	IMService imService;
 	@Autowired
 	UserService userService;
 	@Autowired
 	SimpleIMGroupService simpleIMGroupService;
-	
-	/**环信用户是否存在
-	 * @throws Exception */
-	///im/{username}
-	@RequestMapping(value="/{username}",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+
+	/**
+	 * 环信用户是否存在
+	 * 
+	 * @throws Exception
+	 */
+	// /im/{username}
+	@RequestMapping(value = "/{username}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> findImByUsername(@PathVariable("username") String username) throws Exception{
-		boolean b=imService.imIsExist(username);
-		return new ResponseEntity<>(b,HttpStatus.OK);
+	public ResponseEntity<?> findImByUsername(
+			@PathVariable("username") String username) throws Exception {
+		boolean b = imService.imIsExist(username);
+		return new ResponseEntity<>(b, HttpStatus.OK);
 	}
-	
-	/**测试取token*/
-	@RequestMapping(value="/test",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+
+	/** 测试取token */
+	@RequestMapping(value = "/test", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> test(){
-		String msg="";
+	public ResponseEntity<?> test() {
+		String msg = "";
 		try {
-			msg=imService.getToken();
+			msg = imService.getToken();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<>(new Result<IM>(msg,null),HttpStatus.OK);
+		return new ResponseEntity<>(new Result<IM>(msg, null), HttpStatus.OK);
 	}
-	
-	/**环信建群组*/
-	@RequestMapping(value="/chatgroups",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+
+	/** 环信建群组 */
+	@RequestMapping(value = "/chatgroups", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> createChatgroups(@RequestBody IMGroup imGroup){
-		String members="";
-		User user=userService.findById(imGroup.getUserId());
-		if("".equals(imGroup.getMemberIds())||imGroup.getMemberIds()==null){
-			
-		}else{
+	public ResponseEntity<?> createChatgroups(@RequestBody IMGroup imGroup) {
+		String members = "";
+		User user = userService.findById(imGroup.getUserId());
+		if ("".equals(imGroup.getMemberIds()) || imGroup.getMemberIds() == null) {
+
+		} else {
 			String[] strs = imGroup.getMemberIds().split(",");
-			List<User> users=userService.findByIds(strs);
-			members="[";
-			for(User user2:users){
-				String username=user2.getIm().getUsername();
-				members+="\""+username+"\",";
+			List<User> users = userService.findByIds(strs);
+			members = "[";
+			for (User user2 : users) {
+				String username = user2.getIm().getUsername();
+				members += "\"" + username + "\",";
 			}
-			members=members.substring(0, members.length()-1)+"]";
+			members = members.substring(0, members.length() - 1) + "]";
 		}
-		String msg=imService.chatgroups("group_"+imGroup.getGroupname(), 
-				imGroup.getDesc(), imGroup.isPub(), imGroup.getMaxusers(), 
+		String msg = imService.chatgroups("group_" + imGroup.getGroupname(),
+				imGroup.getDesc(), imGroup.isPub(), imGroup.getMaxusers(),
 				imGroup.isApproval(), user.getIm().getUsername(), members);
-		if(!"error".equals(msg)){
-			return new ResponseEntity<>(new Result<IM>("ok",null),HttpStatus.OK);
-		}else{
-			return new ResponseEntity<>(new Result<IM>("error",null),HttpStatus.BAD_REQUEST);
+		if (!"error".equals(msg)) {
+			return new ResponseEntity<>(new Result<IM>("ok", null),
+					HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(new Result<IM>("error", null),
+					HttpStatus.BAD_REQUEST);
 		}
 	}
-	
-	/**查询所有组*/
-	///im/chatgroups,get请求
-	@RequestMapping(value="/chatgroups",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+
+	/** 查询所有组 */
+	// /im/chatgroups,get请求
+	@RequestMapping(value = "/chatgroups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> getChatgroups(){
-		//得到本地数据库中的所有组信息
-		List<SimpleIMGroup> groups=simpleIMGroupService.findAll();
-		/*得到组id拼成的字符串:1410511142870,1408518613503*/
-		String groupIdsStr="";
-		if(groups.size()>0){
-			for(SimpleIMGroup simpleImGroup:groups){
-				groupIdsStr+=simpleImGroup.getGroupId()+",";
+	public ResponseEntity<?> getChatgroups() {
+		// 得到本地数据库中的所有组信息
+		List<SimpleIMGroup> groups = simpleIMGroupService.findAll();
+		/* 得到组id拼成的字符串:1410511142870,1408518613503 */
+		String groupIdsStr = "";
+		if (groups.size() > 0) {
+			for (SimpleIMGroup simpleImGroup : groups) {
+				groupIdsStr += simpleImGroup.getGroupId() + ",";
 			}
-			groupIdsStr=groupIdsStr.substring(0, groupIdsStr.length()-1);
+			groupIdsStr = groupIdsStr.substring(0, groupIdsStr.length() - 1);
 		}
-		System.out.println("-----------groupIdsStr:"+groupIdsStr);
-		//查询对应环信上的组的详细信息
-		List<IMGroup2> groups2=imService.findAllGroup(groupIdsStr);
-		return new ResponseEntity<>(new Result<IMGroup2>("ok",groups2),HttpStatus.OK);
+		System.out.println("-----------groupIdsStr:" + groupIdsStr);
+		// 查询对应环信上的组的详细信息
+		List<IMGroup2> groups2 = imService.findAllGroup(groupIdsStr);
+		return new ResponseEntity<>(new Result<IMGroup2>("ok", groups2),
+				HttpStatus.OK);
 	}
-	
-	/**向组里添加成员(多个)*/
-	///chatgroups/{groupId}/users
-	@RequestMapping(value="/chatgroups/{chatgroupid}/imUsers",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+
+	/** 向组里添加成员(多个) */
+	// /chatgroups/{groupId}/users
+	@RequestMapping(value = "/chatgroups/{chatgroupid}/imUsers", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> addMembers(@PathVariable("chatgroupid") String chatgroupid,
-			@RequestBody Map<String,String> map){
+	public ResponseEntity<?> addMembers(
+			@PathVariable("chatgroupid") String chatgroupid,
+			@RequestBody Map<String, String> map) {
 		try {
 			imService.addMembers(chatgroupid, map.get("userIds"));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<>(new Result<IMGroup2>("error",null),HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new Result<IMGroup2>("error", null),
+					HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<>(new Result<IMGroup2>("ok",null),HttpStatus.OK);
+		return new ResponseEntity<>(new Result<IMGroup2>("ok", null),
+				HttpStatus.OK);
+	}
+
+	/** 向组里移除成员(单个) */
+	// /chatgroups/{groupId}/users/{userId}
+	@RequestMapping(value = "/chatgroups/{groupId}/users/{userId}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> removeMembers(
+			@PathVariable("groupId") String groupId,
+			@PathVariable("userId") Long userId) {
+		try {
+			String msg=imService.removeMember(groupId,userId);
+			if("error".equals(msg)){
+				//环信用户不存在
+				return new ResponseEntity<>(new Result<IMGroup2>("imUsername not found", null),
+						HttpStatus.BAD_REQUEST);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new Result<IMGroup2>("error", null),
+					HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<>(new Result<IMGroup2>("ok", null),
+				HttpStatus.OK);
 	}
 	
-	/**向组里移除成员(单个)*/
-	///chatgroups/{groupId}/users/{userId}
-	@RequestMapping(value="/chatgroups/{chatgroupid}/users/{userId}",method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public ResponseEntity<?> removeMembers(@PathVariable("chatgroupid") String chatgroupid,
-			@PathVariable("userId") String userId){
-		//imService.removeMembers(chat)
-		return new ResponseEntity<>(new Result<IMGroup2>("ok",null),HttpStatus.OK);
-	}
+	
 }
-
-
-
-
-
-
-
-
-
-

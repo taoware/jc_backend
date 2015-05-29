@@ -125,6 +125,7 @@ public class Information extends IdEntity {
 		this.createTime = createTime;
 	}
 
+	@Column(length=1500)
 	public String getContent() {
 		return content;
 	}

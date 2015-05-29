@@ -1,0 +1,92 @@
+
+body {
+    /*background: url(../img/bg.png);*/
+    background:#fff;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-repeat: no-repeat;
+    font-family: Helvetica, Arial, sans-serif;
+    text-align: center;
+    color: #333;
+}
+
+header{
+    margin-top: 20px;
+    padding-left:10px;
+    padding-right: 30px;
+    font-size: 22px;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.page-container {
+    margin: 10px auto 0 auto;
+
+}
+.timeplace{
+    float: left;
+    margin-left: 10px;
+    font-size: 14px;
+    color: #bbb;
+
+}
+.head-img{
+    width: 100%;
+    height: auto;
+}
+.head-img img{
+    margin-top: 10px;
+    width: 95%;
+    height: auto;
+}
+
+.tip{
+    display: block;
+    background-color: #eee;
+    width: 95%;
+    height: 70px;
+    margin:-2px auto;
+    
+
+}
+.leftword{
+    float: left;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-left: 10px;
+    color: #5e957d;
+}
+.rightword{
+    float: right;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-right: 10px;
+    color: #5e957d;
+}
+.rightword a{
+    color: #5e957d;
+}
+.shoptitle{
+    text-align: left;
+    margin-left: 10px;
+    color: #5e957d;
+    font-size: 20px;
+
+}
+.wordplace{
+    clear: both;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+.wordplace p{
+    margin: 10px;
+    padding-bottom: 5px;
+    text-align: left;
+    line-height: 1.5;
+}
+
+
+
+

@@ -3,6 +3,7 @@ package com.irengine.campus.cas.extension.domain;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -60,7 +61,7 @@ public class Square extends IdEntity implements Comparable<Square>{
 		this.unit = unit;
 	}
 
-	@OneToMany
+	@OneToMany(cascade={CascadeType.ALL})
 	@JoinColumn(name = "squareId")
 	public Set<UploadedFile> getPhotos() {
 		return photos;

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>门店</title>
+        <meta charset="utf-8" />
+		<meta name="keywords" content="登录" />
+		<meta name="description" content="html5页面" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="css/reset.css" />
+        <link rel="stylesheet" href="css/style.css" />
+        <script type="text/javascript" src="js/jquery-2.1.3.min.js"></script>
+								<script>
+					window.onload = function() {
+					      var url = location.search; //获取url中"?"符后的字串
+                var theRequest = new Object();
+                if (url.indexOf("?") != -1) {
+                    var str = url.substr(1);
+                    if (str.indexOf("&") != -1) {
+                        strs = str.split("&");
+                        for (var i = 0; i < strs.length; i++) {
+                            theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].substr(strs[i].indexOf("=")+1));
+                        }
+                    } else {
+                        var key = str.substring(0,str.indexOf("="));
+                        var value = str.substr(str.indexOf("=")+1);
+                        theRequest[key] = decodeURI(value);
+                    }
+                }
+					var storeName =theRequest['storeName'];
+					var address =theRequest['address'];
+					var summary =theRequest['summary'];
+					var phone =theRequest['phone'];
+					var introduction =theRequest['introduction'];
+					var photoUrl ='http://vps1.taoware.com:8080/jc/uploaded/'+theRequest['photoUrl'];
+					$("#storeName").html(storeName);
+					$("#address").html('地址/'+address);
+					$("#summary").html(summary);
+					$("#phone").html("联系方式："+phone);
+					$("#introduction").html(introduction);
+					$("#img1").src=photoUrl;
+					document.getElementById("img1").src=photoUrl;
+					}
+				</script>
+        <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+
+    </head>
+
+    <body>
+        <header id="storeName">storeName</header>
+        <div class="page-container">
+            <div class="timeplace">
+                <p id="summary">summary</p>
+            </div>
+            <div class="head-img">
+                <img id="img1"/>
+                <div class="tip">
+                    <p class="leftword" id="address">地址/</p><br/><br/>
+                    <p class="leftword" id="phone">联系方式：</p>
+                </div>                
+            </div> 
+          
+            <div class="wordplace">
+            <h1 class="shoptitle">公司简介</h1>
+
+            <p id="introduction">introduction</p>
+
+            </div>
+                 
+            </div>
+            
+            
+        </div>
+		
+    </body>
+
+</html>

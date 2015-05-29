@@ -1,6 +1,7 @@
 package com.irengine.campus.cas.extension.controller;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,27 +48,53 @@ public class UserApiController {
 	@Autowired
 	RoleService roleService;
 
-	/**测试*/
+	private static Logger logger = LoggerFactory
+			.getLogger(UserApiController.class);
+	
+	/**
+	 * 测试验证手机号和密码
+	 * 
+	 * @param mobile
+	 *            手机号
+	 * @param password
+	 *            密码
+	 * @return boolean
+	 */
+	@RequestMapping(value = "/testVerify", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> testVerify(@RequestParam("mobile") String mobile,
+			@RequestParam("password") String password) {
+		boolean j1 = userService.testVerify(mobile, password);
+		return new ResponseEntity<>(j1, HttpStatus.OK);
+	}
+
+	/** 测试 */
 	/*
 	 * sample for CORS
 	 */
-	    @RequestMapping(value = "/cors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	    @ResponseBody
-	    public ResponseEntity<?> cors(HttpServletResponse response) {
-//Access-Control-Allow-Headers: x-requested-with
-	        response.addHeader("Access-Control-Allow-Origin", "*");
-//	        response.setHeader("Access-Control-Allow-Origin", "x-requested-with");
-//	        response.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
-//	        response.setHeader("Access-Control-Max-Age", "60");
-	        response.addHeader("Access-Control-Allow-Credentials", "true");
-            response.addHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
-            response.addHeader("Access-Control-Allow-Headers", "cache-control, content-type, x-http-method-override");
-	        return new ResponseEntity<>("CORS enabled", HttpStatus.OK);
-	    }
+	@RequestMapping(value = "/cors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> cors(HttpServletResponse response) {
+		// Access-Control-Allow-Headers: x-requested-with
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		// response.setHeader("Access-Control-Allow-Origin",
+		// "x-requested-with");
+		// response.setHeader("Access-Control-Allow-Methods",
+		// "GET, PUT, POST, DELETE, OPTIONS");
+		// response.setHeader("Access-Control-Max-Age", "60");
+		response.addHeader("Access-Control-Allow-Credentials", "true");
+		response.addHeader("Access-Control-Allow-Methods",
+				"GET, PUT, POST, DELETE, OPTIONS");
+		response.addHeader("Access-Control-Allow-Headers",
+				"cache-control, content-type, x-http-method-override");
+		return new ResponseEntity<>("CORS enabled", HttpStatus.OK);
+	}
 
 	/**
 	 * 查询所有user信息,通过环信用户名查找user信息,通过name查找user,通过imId查找user, 通过ids查找user,
 	 * 通过id查找user,通过queryTime查找user,通过code查找user,通过mobile查找user
+	 * 
+	 * @throws UnsupportedEncodingException
 	 */
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -78,17 +107,29 @@ public class UserApiController {
 			@RequestParam(value = "id", required = false) Long id,
 			@RequestParam(value = "queryTime", required = false) Date queryTime,
 			@RequestParam(value = "code", required = false) String code,
-			@RequestParam(value = "mobile", required = false) String mobile) {
+			@RequestParam(value = "location", required = false) String location,
+			@RequestParam(value = "address", required = false) String address,
+			@RequestParam(value = "mobile", required = false) String mobile)
+			throws UnsupportedEncodingException {
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setHeader("Access-Control-Allow-Methods", "GET");
 		response.setHeader("Access-Control-Max-Age", "60");
 		List<User> users = new ArrayList<User>();
 		if (imUsernames != null && !"".equals(imUsernames)) {
 			users = userService.findByImUsernames(imUsernames);
-		} else if (name != null && !"".equals(name)) {
-			User user = userService.findByName(name);
-			if (user != null) {
-				users.add(user);
+		} else if (name != null) {
+			//name = new String(name.getBytes("ISO-8859-1"), "utf-8");
+			System.out.println(name);
+			logger.info(name);
+			/*精确搜索*/
+//			User user = userService.findByName(name);
+//			if (user != null) {
+//				users.add(user);
+//			}
+			/*模糊搜索*/
+			/*防止输入空字符串查到所有信息*/
+			if(name.length()>0){
+				users=userService.findByName(name);
 			}
 		} else if (imIds != null && !"".equals(imIds)) {
 			String[] strs = imIds.split(",");
@@ -113,13 +154,49 @@ public class UserApiController {
 			if (user != null) {
 				users.add(user);
 			}
-		} else {
+		} else if (location != null) {
+			/*防止输入空字符串查到所有信息*/
+			if(location.length()>0){
+				/*模糊查询地址*/
+				logger.info("----------location:"+location);
+				//location=new String(location.getBytes("ISO-8859-1"), "utf-8");
+				logger.info("----------location:"+location);
+				//System.out.println(location);
+				location=testDeal(location);
+				users=userService.findbyLocation(location);
+			}
+		}else if(address != null){
+			/*模糊查询*/
+			/*防止输入空字符串查到所有信息*/
+			if(address.length()>1){
+				users=userService.findByAddress(address);
+			}
+		}else {
 			users = userService.list();
 		}
 		return new ResponseEntity<>(new Result<User>("ok", users),
 				HttpStatus.OK);
 	}
 
+	/**
+	 * 处理省市区字符串
+	 * @param str1 待处理的字符串
+	 * @return
+	 */
+	private String testDeal(String str1) {
+		//String str2=str1.replaceAll("[\\s]+","").replaceAll("省", "").replaceAll("市", "");
+		String str2=str1.replaceAll("[\\s]+","").replaceAll("省|市|县", "");
+		String[] locations=new String[]{"上海","北京","天津","重庆"};
+		for(String location:locations){
+			int index=str2.indexOf(location);
+			if(index!=-1&&str2.indexOf(location, index+1)!=-1){
+				str2=str2.substring(location.length());
+				break;
+			}
+		}
+		return str2;
+	}
+	
 	/** 审核用户 */
 	@RequestMapping(value = "/{userId}/audit", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -144,11 +221,11 @@ public class UserApiController {
 						HttpStatus.OK);
 			} else {
 				return new ResponseEntity<>(new Result<User>("error", null),
-						HttpStatus.OK);
+						HttpStatus.BAD_REQUEST);
 			}
 		} else {
-			return new ResponseEntity<>(new Result<User>("can not find user",
-					null), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new Result<User>("找不到该用户", null),
+					HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -163,7 +240,7 @@ public class UserApiController {
 					HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(new Result<User>("error", null),
-					HttpStatus.OK);
+					HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -193,11 +270,12 @@ public class UserApiController {
 					new Result<User>("file is empty", null),
 					HttpStatus.BAD_REQUEST);
 		}
-		/*搜索该id用户并且上传头像成功后返回信息*/
-		List<User> users=new ArrayList<User>();
-		User user1=userService.findById(id);
+		/* 搜索该id用户并且上传头像成功后返回信息 */
+		List<User> users = new ArrayList<User>();
+		User user1 = userService.findById(id);
 		users.add(user1);
-		return new ResponseEntity<>(new Result<User>("ok", users), HttpStatus.OK);
+		return new ResponseEntity<>(new Result<User>("ok", users),
+				HttpStatus.OK);
 	}
 
 	/**
@@ -236,7 +314,7 @@ public class UserApiController {
 			}
 			User user1 = userService.findByMobile(user.getMobile());
 			if (user1 != null) {
-				//401:该手机已被注册
+				// 401:该手机已被注册
 				return new ResponseEntity<>(new Result<User>("该手机已被注册", null),
 						HttpStatus.UNAUTHORIZED);
 			} else {
@@ -249,14 +327,18 @@ public class UserApiController {
 				user.setAudit(true);
 				String mes = userService.create(user);
 				if ("success".equals(mes)) {
-					userService.matchUser(user);
+					/* 根据基础user数据自动配权限和unit */
+					// userService.matchUser(user);
+					/* 自动配置权限为king(6),unit为全国(23) */
+					userService.matchUser2(user);
 					return new ResponseEntity<>(
-							//200:用户注册成功
+					// 200:用户注册成功
 							new Result<User>("用户注册成功", null), HttpStatus.OK);
 				} else {
-					//402:手机号或密码格式错误,注册失败
+					// 402:手机号或密码格式错误,注册失败
 					return new ResponseEntity<>(new Result<User>(
-							"手机号或密码格式错误,注册失败", null), HttpStatus.PAYMENT_REQUIRED);
+							"手机号或密码格式错误,注册失败", null),
+							HttpStatus.PAYMENT_REQUIRED);
 				}
 			}
 		}
@@ -326,19 +408,19 @@ public class UserApiController {
 					userService.update2(user);
 				}
 			}
-			//200:登入成功
+			// 200:登入成功
 			return new ResponseEntity<>(
 					new Result<User>("登录成功." + IMMsg, users), HttpStatus.OK);
 		} else if ("notExist".equals(str)) {
-			//403:用户名不存在
+			// 403:用户名不存在
 			return new ResponseEntity<>(new Result<User>("用户名不存在.", null),
 					HttpStatus.FORBIDDEN);
 		} else if ("Wrong".equals(str)) {
-			//406:密码错误
+			// 406:密码错误
 			return new ResponseEntity<>(new Result<User>("密码错误", null),
 					HttpStatus.NOT_ACCEPTABLE);
 		} else {
-			//400:服务器异常
+			// 400:服务器异常
 			return new ResponseEntity<>(new Result<User>("服务器异常", null),
 					HttpStatus.BAD_REQUEST);
 		}
@@ -358,7 +440,8 @@ public class UserApiController {
 			return new ResponseEntity<>(new Result<User>("ok", null),
 					HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>(new Result<User>("error", null),
+			userService.delete(id);
+			return new ResponseEntity<>(new Result<User>("delete im error,delete user success", null),
 					HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -391,8 +474,8 @@ public class UserApiController {
 				return new ResponseEntity<>(new Result<User>("ok", null),
 						HttpStatus.OK);
 			} else {
-				return new ResponseEntity<>(new Result<User>("error", null),
-						HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(new Result<User>(
+						"密码格式不对,请输入6~16位字母加数字组合", null), HttpStatus.BAD_REQUEST);
 			}
 		} else {
 			return new ResponseEntity<>(new Result<User>("原密码错误", null),

@@ -23,9 +23,12 @@ public interface InformationRepository extends CrudRepository<Information,Long>{
 	@Query("SELECT i FROM Information i WHERE i.userId=:userId")
 	public List<Information> findByUserId(@Param("userId") Long userId);
 	/**根据type查询资讯*/
-	@Query("SELECT i FROM Information i WHERE i.type=:type ORDER BY id")
+	@Query("SELECT i FROM Information i WHERE i.type=:type ORDER BY id desc")
 	public List<Information> findByType(@Param("type") String type);
 
 	@Query("select max(i.id) from Information i")
 	public long findMaxId();
+
+	@Query("SELECT i FROM Information i ORDER BY id desc")
+	public List<Information> list();
 }

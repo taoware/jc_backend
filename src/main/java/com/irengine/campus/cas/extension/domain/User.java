@@ -83,49 +83,51 @@ public class User extends IdEntity {
 	@Transient
 	public String getScreenName() {
 		String screenName = "";
+		/*取address*/
+		screenName=getAddress();
 		/*取固定的unitName+roleName*/
-		if (getUnits().size() > 0 && getRoles().size() > 0) {
-			Set<Unit> units = getUnits();
-			Iterator<Unit> it = units.iterator();
-			long unitId = 0;
-			Unit unit1 = null;
-			while (it.hasNext()) {
-				Unit unit = it.next();
-				if (unit.getId() > unitId) {
-					unitId = unit.getId();
-					unit1 = unit;
-				}
-			}
-			Set<Role> roles = getRoles();
-			Iterator<Role> it1 = roles.iterator();
-			long roleId = 0;
-			Role role1 = null;
-			while (it1.hasNext()) {
-				Role role = it1.next();
-				if (role.getId() > roleId) {
-					roleId = role.getId();
-					role1 = role;
-				}
-			}
-			String roleName="";
-			String roleName1=role1.getRole();
-			if("clerk".equals(roleName1)){
-				roleName="店员";
-			}else if("buyer".equals(roleName1)){
-				roleName="联采";
-			}else if("admin".equals(roleName1)){
-				roleName="管理员";
-			}else if("supplier".equals(roleName1)){
-				roleName="供应商";
-			}else if("visitor".equals(roleName1)){
-				roleName="游客";
-			}else if("king".equals(roleName1)){
-				roleName="超级管理员";
-			}else{
-				roleName="人员";
-			}
-			screenName=unit1.getName()+roleName;
-		}
+//		if (getUnits().size() > 0 && getRoles().size() > 0) {
+//			Set<Unit> units = getUnits();
+//			Iterator<Unit> it = units.iterator();
+//			long unitId = 0;
+//			Unit unit1 = null;
+//			while (it.hasNext()) {
+//				Unit unit = it.next();
+//				if (unit.getId() > unitId) {
+//					unitId = unit.getId();
+//					unit1 = unit;
+//				}
+//			}
+//			Set<Role> roles = getRoles();
+//			Iterator<Role> it1 = roles.iterator();
+//			long roleId = 0;
+//			Role role1 = null;
+//			while (it1.hasNext()) {
+//				Role role = it1.next();
+//				if (role.getId() > roleId) {
+//					roleId = role.getId();
+//					role1 = role;
+//				}
+//			}
+//			String roleName="";
+//			String roleName1=role1.getRole();
+//			if("clerk".equals(roleName1)){
+//				roleName="店员";
+//			}else if("buyer".equals(roleName1)){
+//				roleName="联采";
+//			}else if("admin".equals(roleName1)){
+//				roleName="管理员";
+//			}else if("supplier".equals(roleName1)){
+//				roleName="供应商";
+//			}else if("visitor".equals(roleName1)){
+//				roleName="游客";
+//			}else if("king".equals(roleName1)){
+//				roleName="超级管理员";
+//			}else{
+//				roleName="人员";
+//			}
+//			screenName=unit1.getName()+roleName;
+//		}
 		return screenName;
 	}
 

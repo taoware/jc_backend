@@ -40,7 +40,7 @@ public class InformationService {
 
 	/** 查找所有资讯 */
 	public List<Information> list() {
-		return (List<Information>) informationRepository.findAll();
+		return informationRepository.list();
 	}
 
 	/** 找到指定时间后的资讯 */

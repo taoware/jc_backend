@@ -136,6 +136,7 @@ public class Store extends IdEntity {
 		this.phone = phone;
 	}
 
+	@Column(length=1500)
 	public String getIntroduction() {
 		return introduction;
 	}

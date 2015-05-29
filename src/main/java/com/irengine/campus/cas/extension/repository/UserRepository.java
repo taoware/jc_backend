@@ -50,5 +50,16 @@ public interface UserRepository extends CrudRepository<User, Long>{
 
 	@Query("SELECT u FROM User u WHERE u.mobile like :mobile")
 	public List<User> findByMobile2(@Param("mobile")String mobile);
+
+	@Query("SELECT u FROM User u WHERE u.location like :str")
+	public List<User> findByLocation(@Param("str") String str);
+
+	/**通过姓名查找(模糊搜索)*/
+	@Query("SELECT u FROM User u WHERE u.name like :name")
+	public List<User> findByName2(@Param("name") String name);
+
+	/**通过所在单位查询用户(模糊搜索)*/
+	@Query("SELECT u FROM User u WHERE u.address like :address")
+	public List<User> findByAddress(@Param("address") String address);
 	
 }

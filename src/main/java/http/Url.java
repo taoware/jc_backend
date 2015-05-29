@@ -23,4 +23,7 @@ public class Url {
 	//环信组加人(多个)
 	///{org_name}/{app_name}/chatgroups/{chatgroupid}/users
 	public static final String addMembersToGroup="https://a1.easemob.com/gxcm/jycs/chatgroups/";
+	//环信组减人(单个)
+	///{org_name}/{app_name}/chatgroups/{group_id}/users/{username}
+	public static final String removeMember="https://a1.easemob.com/gxcm/jycs/chatgroups/";
 }

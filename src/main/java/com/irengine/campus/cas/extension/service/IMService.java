@@ -45,28 +45,37 @@ public class IMService {
 
 	private static Logger logger = LoggerFactory
 			.getLogger(FileUploadController.class);
-	
-	/**向组添加成员
-	 * @throws Exception */
-	public String addMembers(String chatgroupid,String userIds) throws Exception{
-		/*把userIds转成imUsername并且拼成字符串,得到requestBody的json*/
-		//{"usernames":["5cxhactgdj","mh2kbjyop1"]}
-		String json="{\"usernames\":[";
-		String[] userIds2=userIds.split(",");
-		for(String userId:userIds2){
-			User user=userService.findById(Long.parseLong(userId));
-			if(user.getIm()!=null){
-				json+="\""+user.getIm().getUsername()+"\",";
+
+	/**
+	 * 向组添加成员
+	 * 
+	 * @param chatgroupid
+	 *            :环信群id
+	 * @param userids
+	 *            :由userId拼成的字符串
+	 * @throws Exception
+	 */
+	public String addMembers(String chatgroupid, String userIds)
+			throws Exception {
+		/* 把userIds转成imUsername并且拼成字符串,得到requestBody的json */
+		// {"usernames":["5cxhactgdj","mh2kbjyop1"]}
+		String json = "{\"usernames\":[";
+		String[] userIds2 = userIds.split(",");
+		for (String userId : userIds2) {
+			User user = userService.findById(Long.parseLong(userId));
+			if (user.getIm() != null) {
+				json += "\"" + user.getIm().getUsername() + "\",";
 			}
 		}
-		json=json.substring(0, json.length()-1)+"]}";
-		/*调用post请求*/
-		///{org_name}/{app_name}/chatgroups/{chatgroupid}/users
-		String path=Url.addMembersToGroup+chatgroupid+"/users";
+		json = json.substring(0, json.length() - 1) + "]}";
+		/* 调用post请求 */
+		// /{org_name}/{app_name}/chatgroups/{chatgroupid}/users
+		String path = Url.addMembersToGroup + chatgroupid + "/users";
 		String token = getToken();
 		String header1 = "Authorization";
 		String header2 = "Bearer " + token;
-		Map<String,String> msgMap=sendPost2(json, path, header1, header2, "POST");
+		Map<String, String> msgMap = sendPost2(json, path, header1, header2,
+				"POST");
 		return msgMap.get("msg");
 	}
 
@@ -84,9 +93,12 @@ public class IMService {
 		return msg1;
 	}
 
-	/** 注册环信 
-	 * @throws Exception */
-	public String create(String username, String password) throws Exception{
+	/**
+	 * 注册环信
+	 * 
+	 * @throws Exception
+	 */
+	public String create(String username, String password) throws Exception {
 		String msg = "error";
 		IM im = new IM(username, password);
 		if (!imIsExist(username)) {
@@ -122,18 +134,21 @@ public class IMService {
 		return msg;
 	}
 
-	/** 验证该环信用户是否存在(web端) 
-	 * @throws Exception */
+	/**
+	 * 验证该环信用户是否存在(web端)
+	 * 
+	 * @throws Exception
+	 */
 	public boolean imIsExist(String username) throws Exception {
 		String token = getToken();
 		String header1 = "Authorization";
 		String header2 = "Bearer " + token;
 		String path = Url.findImByUsername + username;
-		Map<String,String> msg = sendPost2("", path, header1, header2, "GET");
-		String code=msg.get("code");
-		if("200".equals(code)){
+		Map<String, String> msg = sendPost2("", path, header1, header2, "GET");
+		String code = msg.get("code");
+		if ("200".equals(code)) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
@@ -159,20 +174,23 @@ public class IMService {
 		try {
 			token = getToken();
 		} catch (Exception e1) {
-			
+
 		}
 		String path = Url.imChatgroupsUrl;
 		String header1 = "Authorization";
 		String header2 = "Bearer " + token;
 		try {
-			Map<String,String> msgMap = sendPost2(json, path, header1, header2, "POST");
-			msg=msgMap.get("msg");
-			String responseBody=msgMap.get("responseBody");
+			Map<String, String> msgMap = sendPost2(json, path, header1,
+					header2, "POST");
+			msg = msgMap.get("msg");
+			String responseBody = msgMap.get("responseBody");
 			System.out.println(responseBody);
-			String groupId=responseBody.substring(responseBody.indexOf("groupid")+12, responseBody.indexOf("timestamp")-8);
+			String groupId = responseBody.substring(
+					responseBody.indexOf("groupid") + 12,
+					responseBody.indexOf("timestamp") - 8);
 			System.out.println(groupId);
-			/*怎样的到新建群组的groupId:通过responseBody返回内容取得*/
-			SimpleIMGroup group=new SimpleIMGroup();
+			/* 怎样的到新建群组的groupId:通过responseBody返回内容取得 */
+			SimpleIMGroup group = new SimpleIMGroup();
 			group.setGroupId(groupId);
 			simpleIMGroupService.create(group);
 		} catch (Exception e) {
@@ -393,7 +411,7 @@ public class IMService {
 			outStream.write(data);
 			outStream.close();// 关闭流
 		}
-		
+
 		StringBuffer str = new StringBuffer();
 		code = "" + conn.getResponseCode();
 		// 如果请求响应码是200，则表示成功
@@ -420,41 +438,47 @@ public class IMService {
 		return msgMap;
 	}
 
-	/**查找所有组以及对应的成员*/
+	/** 查找所有组以及对应的成员 */
 	public List<IMGroup2> findAllGroup(String groupIdsStr) {
-		/*发送请求查询环信上组的详细信息*/
-		String token="";
-		Map<String,String> mapMsg=new HashMap<String, String>();
-		if("".equals(groupIdsStr)){
+		/* 发送请求查询环信上组的详细信息 */
+		String token = "";
+		Map<String, String> mapMsg = new HashMap<String, String>();
+		if ("".equals(groupIdsStr)) {
 			return null;
-		}else{
+		} else {
 			try {
 				token = getToken();
 				String header1 = "Authorization";
 				String header2 = "Bearer " + token;
-				String path=Url.getGroupUrl2+groupIdsStr;
-				mapMsg=sendPost2("", path, header1, header2, "GET");
+				String path = Url.getGroupUrl2 + groupIdsStr;
+				mapMsg = sendPost2("", path, header1, header2, "GET");
 			} catch (Exception e) {
 				e.printStackTrace();
 				return null;
 			}
-			/*将得到的responseBody信息注入到IMGroup类中*/
-			String responseBody=mapMsg.get("responseBody");
-			String groupsMsg=responseBody.substring(responseBody.indexOf("data")-1, responseBody.indexOf("timestamp")-4);
+			/* 将得到的responseBody信息注入到IMGroup类中 */
+			String responseBody = mapMsg.get("responseBody");
+			String groupsMsg = responseBody.substring(
+					responseBody.indexOf("data") - 1,
+					responseBody.indexOf("timestamp") - 4);
 			@SuppressWarnings({ "unchecked", "rawtypes" })
-			Data<IMGroup2> data=(Data) JSONUtils.parseObject("{"+groupsMsg+"}",new TypeReference<Data<IMGroup2>>(){});
+			Data<IMGroup2> data = (Data) JSONUtils.parseObject("{" + groupsMsg
+					+ "}", new TypeReference<Data<IMGroup2>>() {
+			});
 			List<IMGroup2> list = data.getData();
-			for(IMGroup2 group:list){
+			for (IMGroup2 group : list) {
 				group.setName(group.getName().substring(6));
-				for(Member member:group.getAffiliations()){
-					/*给member对应user*/
-					if(member.getOwner()!=null){
-						/*判定为群主*/
-						User user=userService.findByImUsernames(member.getOwner()).get(0);
+				for (Member member : group.getAffiliations()) {
+					/* 给member对应user */
+					if (member.getOwner() != null) {
+						/* 判定为群主 */
+						User user = userService.findByImUsernames(
+								member.getOwner()).get(0);
 						group.setOwner(user);
-					}else{
-						/*判定为成员*/
-						User user=userService.findByImUsernames(member.getMember()).get(0);
+					} else {
+						/* 判定为成员 */
+						User user = userService.findByImUsernames(
+								member.getMember()).get(0);
 						group.getMembers().add(user);
 					}
 				}
@@ -462,5 +486,30 @@ public class IMService {
 			return list;
 		}
 	}
-	
+
+	/**
+	 * 组减人
+	 * 
+	 * @param groupId
+	 *            环信群id
+	 * @param userId
+	 *            userId
+	 * @throws Exception
+	 */
+	public String removeMember(String groupId, Long userId) throws Exception {
+		//{group_id}/users/{username}
+		User user=userService.findById(userId);
+		if(user!=null&&user.getIm()!=null){
+			String path = Url.removeMember+groupId+"/users/"+user.getIm().getUsername();
+			String token = getToken();
+			String header1 = "Authorization";
+			String header2 = "Bearer " + token;
+			Map<String,String> msg=sendPost2("", path, header1, header2, "DELETE");
+			return msg.get("msg");
+		}else{
+			/*该环信用户不存在*/
+			return "error";
+		}
+	}
+
 }

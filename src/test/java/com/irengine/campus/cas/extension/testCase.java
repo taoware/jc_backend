@@ -43,6 +43,30 @@ public class testCase {
 		return json;
 	}
 	
+	/*模糊查询地址*/
+	@Test
+	public void test11(){
+		String str3="江西省宜春市上高县";
+		String str2=testDeal(str3);
+		System.out.println(str2);
+		String str4=str2.replaceAll("", "%");
+		System.out.println(str4.substring(1, str4.length()-1));
+	}
+	
+	private String testDeal(String str1) {
+		//String str2=str1.replaceAll("[\\s]+","").replaceAll("省", "").replaceAll("市", "");
+		String str2=str1.replaceAll("[\\s]+","").replaceAll("省|市|县", "");
+		String[] locations=new String[]{"上海","北京","天津","重庆"};
+		for(String location:locations){
+			int index=str2.indexOf(location);
+			if(index!=-1&&str2.indexOf(location, index+1)!=-1){
+				str2=str2.substring(location.length());
+				break;
+			}
+		}
+		return str2;
+	}
+
 	@Test
 	public void test10() {
 		int a = 11;

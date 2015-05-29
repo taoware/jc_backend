@@ -129,6 +129,7 @@ public class UserService {
 		return mes;
 	}
 
+	/**修改密码(密码格式做验证)*/
 	public String updatePassword(String plainPassword, long id) {
 		User user = userRepository.findOne(id);
 		if (verifyPassword(plainPassword)) {
@@ -224,7 +225,8 @@ public class UserService {
 
 	private boolean verifyPassword(String plainPassword) {
 		boolean j1 = plainPassword.matches("[\\da-zA-Z]{6,16}");
-		boolean j2 = plainPassword.matches("[a-zA-Z]+[\\d]+||[\\d]+[a-zA-Z]+");
+		boolean j2 = plainPassword.matches("[a-zA-Z]+[\\d]+[\\da-zA-Z]*||[\\d]+[a-zA-Z]+[\\da-zA-Z]*");
+		//boolean j2=true;
 		if (j1 == true && j2 == true) {
 			return true;
 		} else {
@@ -248,9 +250,13 @@ public class UserService {
 		return users;
 	}
 
-	public User findByName(String name) {
-		User user = userRepository.findByName(name);
-		return user;
+	public List<User> findByName(String name) {
+		/*精确搜索*/
+		//User user = userRepository.findByName(name);
+		/*模糊搜索*/
+		List<User> users=new ArrayList<User>();
+			users=userRepository.findByName2("%"+name+"%");
+		return users;
 	}
 
 	/* 根据环信username查找对应用户* */
@@ -301,5 +307,45 @@ public class UserService {
 			}
 			update2(user);
 		}
+	}
+
+	public void matchUser2(User user) {
+		Role role=roleService.findByName("king");
+		Unit unit=unitService.findById(23L);
+		user.getRoles().add(role);
+		user.getUnits().add(unit);
+		update2(user);
+	}
+
+	public boolean testVerify(String mobile, String password) {
+		if(verifyMobile(mobile)&&verifyPassword(password)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * 根据地址查询用户(模糊查询)
+	 * @param location
+	 * @return
+	 */
+	public List<User> findbyLocation(String location) {
+		String str=location.replaceAll("", "%");
+		List<User> users=userRepository.findByLocation(str);
+		return users;
+	}
+
+	/**
+	 * 通过所在单位查找用户(模糊查询)
+	 * @param address 地址
+	 * @return
+	 */
+	public List<User> findByAddress(String address) {
+		List<User> users=new ArrayList<User>();
+		address=address.replaceAll("", "%");
+		System.out.println("--------------address:"+address);
+		users=userRepository.findByAddress(address);
+		return users;
 	}
 }

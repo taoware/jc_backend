@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 
 import org.junit.Test;
 
+@SuppressWarnings("restriction")
 public class ResizeImage {
 
 	/**
@@ -167,7 +168,7 @@ public class ResizeImage {
 		String thumbnailName=fileUrl.substring(fileUrl.lastIndexOf("\\")+1, fileUrl.lastIndexOf("."))+"t"+fileUrl.substring(fileUrl.lastIndexOf("."));
 		File file=new File(fileUrl);
 		String outputFolder="C:\\Users\\Administrator\\Desktop\\2";
-		String thumbnail=fileUrl.substring(fileUrl.lastIndexOf("\\"), fileUrl.lastIndexOf("."));
+		//String thumbnail=fileUrl.substring(fileUrl.lastIndexOf("\\"), fileUrl.lastIndexOf("."));
 		BufferedImage image=javax.imageio.ImageIO.read(file);
 		int toWidth=300;
 		int toHight=(int) (image.getHeight()/(image.getWidth()/300.0));
