@@ -264,7 +264,7 @@ public class UserService {
 		String[] strs = imUsernames.split(",");
 		List<User> users = new ArrayList<User>();
 		for (String imUsername : strs) {
-			User user = userRepository.findByImUsername(imUsername);
+			User user = userRepository.findByImUsername(imUsername.trim());
 			if (user != null) {
 				users.add(user);
 			}

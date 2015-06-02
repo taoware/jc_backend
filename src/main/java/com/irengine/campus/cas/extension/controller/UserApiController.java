@@ -28,10 +28,12 @@ import com.irengine.campus.cas.extension.domain.Device;
 import com.irengine.campus.cas.extension.domain.IM;
 import com.irengine.campus.cas.extension.domain.Password;
 import com.irengine.campus.cas.extension.domain.Result;
+import com.irengine.campus.cas.extension.domain.Square;
 import com.irengine.campus.cas.extension.domain.UploadedFile;
 import com.irengine.campus.cas.extension.domain.User;
 import com.irengine.campus.cas.extension.service.IMService;
 import com.irengine.campus.cas.extension.service.RoleService;
+import com.irengine.campus.cas.extension.service.SquareService;
 import com.irengine.campus.cas.extension.service.UserService;
 import com.irengine.campus.cas.extension.service.UtilityService;
 
@@ -47,10 +49,12 @@ public class UserApiController {
 	IMService imService;
 	@Autowired
 	RoleService roleService;
+	@Autowired
+	SquareService squareService;
 
 	private static Logger logger = LoggerFactory
 			.getLogger(UserApiController.class);
-	
+
 	/**
 	 * 测试验证手机号和密码
 	 * 
@@ -109,27 +113,26 @@ public class UserApiController {
 			@RequestParam(value = "code", required = false) String code,
 			@RequestParam(value = "location", required = false) String location,
 			@RequestParam(value = "address", required = false) String address,
+			/*传入userIdExc起到剔除环信好友用户的功能*/
+			@RequestParam(value = "userIdExc", required = false) Long userIdExc,
 			@RequestParam(value = "mobile", required = false) String mobile)
 			throws UnsupportedEncodingException {
-		response.setHeader("Access-Control-Allow-Origin", "*");
-		response.setHeader("Access-Control-Allow-Methods", "GET");
-		response.setHeader("Access-Control-Max-Age", "60");
 		List<User> users = new ArrayList<User>();
 		if (imUsernames != null && !"".equals(imUsernames)) {
 			users = userService.findByImUsernames(imUsernames);
 		} else if (name != null) {
-			//name = new String(name.getBytes("ISO-8859-1"), "utf-8");
+			// name = new String(name.getBytes("ISO-8859-1"), "utf-8");
 			System.out.println(name);
 			logger.info(name);
-			/*精确搜索*/
-//			User user = userService.findByName(name);
-//			if (user != null) {
-//				users.add(user);
-//			}
-			/*模糊搜索*/
-			/*防止输入空字符串查到所有信息*/
-			if(name.length()>0){
-				users=userService.findByName(name);
+			/* 精确搜索 */
+			// User user = userService.findByName(name);
+			// if (user != null) {
+			// users.add(user);
+			// }
+			/* 模糊搜索 */
+			/* 防止输入空字符串查到所有信息 */
+			if (name.length() > 0) {
+				users = userService.findByName(name);
 			}
 		} else if (imIds != null && !"".equals(imIds)) {
 			String[] strs = imIds.split(",");
@@ -155,24 +158,39 @@ public class UserApiController {
 				users.add(user);
 			}
 		} else if (location != null) {
-			/*防止输入空字符串查到所有信息*/
-			if(location.length()>0){
-				/*模糊查询地址*/
-				logger.info("----------location:"+location);
-				//location=new String(location.getBytes("ISO-8859-1"), "utf-8");
-				logger.info("----------location:"+location);
-				//System.out.println(location);
-				location=testDeal(location);
-				users=userService.findbyLocation(location);
+			/* 防止输入空字符串查到所有信息 */
+			if (location.length() > 0) {
+				/* 模糊查询地址 */
+				logger.info("----------location:" + location);
+				// location=new String(location.getBytes("ISO-8859-1"),
+				// "utf-8");
+				logger.info("----------location:" + location);
+				// System.out.println(location);
+				location = testDeal(location);
+				users = userService.findbyLocation(location);
 			}
-		}else if(address != null){
-			/*模糊查询*/
-			/*防止输入空字符串查到所有信息*/
-			if(address.length()>1){
-				users=userService.findByAddress(address);
+		} else if (address != null) {
+			/* 模糊查询 */
+			/* 防止输入空字符串查到所有信息 */
+			if (address.length() > 0) {
+				users = userService.findByAddress(address);
 			}
-		}else {
+		} else {
 			users = userService.list();
+		}
+		if(userIdExc!=null&&!"".equals(userIdExc)){
+			logger.info("-----------------userIdExc:"+userIdExc);
+			/*user2:需要剔除的用户*/
+			List<User> users2=new ArrayList<User>();
+			User user=userService.findById(userIdExc);
+			users.remove(user);
+			try {
+				users2 = imService.findContactsByUserId(userIdExc);
+			} catch (Exception e) {
+				return new ResponseEntity<>(new Result<User>("ok", users),
+						HttpStatus.OK);
+			}
+			users.removeAll(users2);
 		}
 		return new ResponseEntity<>(new Result<User>("ok", users),
 				HttpStatus.OK);
@@ -180,23 +198,26 @@ public class UserApiController {
 
 	/**
 	 * 处理省市区字符串
-	 * @param str1 待处理的字符串
+	 * 
+	 * @param str1
+	 *            待处理的字符串
 	 * @return
 	 */
 	private String testDeal(String str1) {
-		//String str2=str1.replaceAll("[\\s]+","").replaceAll("省", "").replaceAll("市", "");
-		String str2=str1.replaceAll("[\\s]+","").replaceAll("省|市|县", "");
-		String[] locations=new String[]{"上海","北京","天津","重庆"};
-		for(String location:locations){
-			int index=str2.indexOf(location);
-			if(index!=-1&&str2.indexOf(location, index+1)!=-1){
-				str2=str2.substring(location.length());
+		// String str2=str1.replaceAll("[\\s]+","").replaceAll("省",
+		// "").replaceAll("市", "");
+		String str2 = str1.replaceAll("[\\s]+", "").replaceAll("省|市|县", "");
+		String[] locations = new String[] { "上海", "北京", "天津", "重庆" };
+		for (String location : locations) {
+			int index = str2.indexOf(location);
+			if (index != -1 && str2.indexOf(location, index + 1) != -1) {
+				str2 = str2.substring(location.length());
 				break;
 			}
 		}
 		return str2;
 	}
-	
+
 	/** 审核用户 */
 	@RequestMapping(value = "/{userId}/audit", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -285,11 +306,7 @@ public class UserApiController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> create(@RequestBody User user,
-			HttpServletRequest request) throws Exception {
-		System.out.println(user);
-		String content = request.getContentType();
-		System.out.println(content);
+	public ResponseEntity<?> create(@RequestBody User user) throws Exception {
 		if (user.getName().trim().trim() == null
 				|| "".equals(user.getName().trim())
 				|| user.getGender().trim() == null
@@ -309,6 +326,14 @@ public class UserApiController {
 			return new ResponseEntity<>(new Result<User>("信息不能为空", null),
 					HttpStatus.BAD_REQUEST);
 		} else {
+			/* 真实姓名只能是中文 */
+			String regex = "[\u4e00-\u9fa5]+";
+			String name = user.getName();
+			if (!name.matches(regex)) {
+				return new ResponseEntity<>(
+						new Result<User>("真实姓名只能为中文", null),
+						HttpStatus.REQUEST_TIMEOUT);
+			}
 			if (user.getCode() == null || "".equals(user.getCode())) {
 				user.setCode(user.getMobile());
 			}
@@ -431,6 +456,10 @@ public class UserApiController {
 	@ResponseBody
 	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 		User user = userService.findById(id);
+		List<Square> squares = squareService.findByUserId(id);
+		for (Square square : squares) {
+			squareService.delete(square.getId());
+		}
 		String msg = "";
 		if (user.getIm() != null) {
 			msg = imService.deleteIm(user.getIm().getUsername());
@@ -441,7 +470,8 @@ public class UserApiController {
 					HttpStatus.OK);
 		} else {
 			userService.delete(id);
-			return new ResponseEntity<>(new Result<User>("delete im error,delete user success", null),
+			return new ResponseEntity<>(new Result<User>(
+					"delete im error,delete user success", null),
 					HttpStatus.BAD_REQUEST);
 		}
 	}

@@ -181,7 +181,7 @@ public class SquareApiController {
 	@RequestMapping(value = "/user/{userId}/unit/{unitId}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> TestCreate(
-			@RequestParam("information") String information,
+			@RequestParam(value = "information", required = false, defaultValue = "") String information,
 			@RequestParam("type") String type,
 			@PathVariable("userId") long userId,
 			@PathVariable("unitId") long unitId,
@@ -205,17 +205,22 @@ public class SquareApiController {
 		files.add(file7);
 		files.add(file8);
 		files.add(file9);
-		String information1 = "";
-		String type1 = "";
-		/* 解决乱码问题 */
-		try {
-			information1 = new String(information.getBytes("ISO-8859-1"),
-					"utf-8");
-			type1 = new String(type.getBytes("ISO-8859-1"), "utf-8");
-		} catch (UnsupportedEncodingException e) {
-			return new ResponseEntity<>(new Result<Square>("error", null),
-					HttpStatus.BAD_REQUEST);
+//		String information1 = "";
+//		String type1 = "";
+		String type1=type;
+		if(information==null||"".equals(information)){
+			information="";
 		}
+		String information1=information;
+//		/* 解决乱码问题 */
+//		try {
+//			information1 = new String(information.getBytes("ISO-8859-1"),
+//					"utf-8");
+//			type1 = new String(type.getBytes("ISO-8859-1"), "utf-8");
+//		} catch (UnsupportedEncodingException e) {
+//			return new ResponseEntity<>(new Result<Square>("error", null),
+//					HttpStatus.BAD_REQUEST);
+//		}
 		List<Long> permissionIds = userService
 				.findPermissionIdsByUserId(userId);
 		if (!type1.equals("员工") && !type1.equals("供应商") && !type1.equals("联采")) {

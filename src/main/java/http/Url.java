@@ -1,6 +1,8 @@
 package http;
 
 public class Url {
+	//泛型
+	public static final String imUrl="https://a1.easemob.com/gxcm/jycs/";
 	//创建环信群组
 	public static final String imChatgroupsUrl="https://a1.easemob.com/gxcm/jycs/chatgroups";
 	//注册环信用户(单个)

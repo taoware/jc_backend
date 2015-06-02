@@ -21,6 +21,17 @@ import com.irengine.campus.cas.extension.service.IMService;
 
 public class testCase {
 
+	@Test
+	public void test20150601(){
+		String str="黄宋搏";
+		String regex="[\u4e00-\u9fa5]+";
+		if(str.matches(regex)){
+			System.out.println(true);
+		}else{
+			System.out.println(false);
+		}
+	}
+	
 	private String ProcessMobile(String mobile) {
 		String str = "";
 		if (mobile.length() > 5) {

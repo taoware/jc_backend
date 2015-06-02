@@ -512,4 +512,44 @@ public class IMService {
 		}
 	}
 
+	/**
+	 * 通过userId查找环信上的好友对应的User信息
+	 * @param userIdExc:查找该id的用户环信上的好友对应的User信息
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<User> findContactsByUserId(Long userIdExc) throws Exception {
+		List<User> users=new ArrayList<User>();
+		/*得到该用户的imUsername*/
+		User user=userService.findById(userIdExc);
+		logger.info("--------------1");
+		if(user.getIm()!=null){
+			/*发送请求*/
+			///{org_name}/{app_name}/users/{owner_username}/contacts/users
+			String path=Url.imUrl+"users/"+user.getIm().getUsername()+"/contacts/users";
+			String token = getToken();
+			String header1 = "Authorization";
+			String header2 = "Bearer " + token;
+			Map<String,String> map=sendPost2("", path, header1, header2, "GET");
+			/*解析响应数据得到imUsername组组成的字符串*/
+			String msg=map.get("msg");
+			logger.info("--------------2"+msg);
+			if("success".equals(msg)){
+				String responseBody=map.get("responseBody");
+				logger.info("--------------3"+responseBody);
+				//"data" : [ ],  "timestamp" 
+				String msg2 = responseBody.substring(
+						responseBody.indexOf("data") +10,
+						responseBody.indexOf("timestamp") - 6);
+				String msg3=msg2.replaceAll("\"", "");
+				logger.info("--------------4"+msg3);
+				//System.out.println(msg3);
+				/*查询User信息*/
+				users=userService.findByImUsernames(msg3);
+
+			}
+		}
+		return users;
+	}
+
 }

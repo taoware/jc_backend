@@ -35,6 +35,13 @@ public class IMApiController {
 	@Autowired
 	SimpleIMGroupService simpleIMGroupService;
 
+	@RequestMapping(value = "user/{userId}/contacts", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> findContactsByUserId(@PathVariable("userId") Long userId) throws Exception{
+		List<User> users=imService.findContactsByUserId(userId);
+		return new ResponseEntity<>(users, HttpStatus.OK);
+	}
+	
 	/**
 	 * 环信用户是否存在
 	 * 
